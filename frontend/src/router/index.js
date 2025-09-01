@@ -15,6 +15,8 @@ import MyDatasets from "../views/dataset/MyDatasets.vue";
 import PublicDatasets from "../views/dataset/PublicDatasets.vue";
 import DatasetView from "../views/dataset/DatasetView.vue";
 import DatasetEdit from "../views/dataset/DatasetEdit.vue";
+import RequestDataTrade from "../views/dataset/dataTrade/RequestDataTrade.vue";
+import RequestDataService from "../views/dataset/dataService/RequestDataService.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -56,6 +58,18 @@ const router = createRouter({
       path: "/dataset/edit/:blockchainName/:name",
       name: "DatasetEdit",
       component: DatasetEdit,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/dataset/requestDataTrade/:blockchainName/:name",
+      name: "RequestDataTrade",
+      component: RequestDataTrade,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/dataset/requestDataService/:blockchainName/:name",
+      name: "RequestDataService",
+      component: RequestDataService,
       meta: { requiresAuth: true },
     },
     {

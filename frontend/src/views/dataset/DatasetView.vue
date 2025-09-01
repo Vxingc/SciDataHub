@@ -233,14 +233,14 @@ const downloadMaskingDataset = () => {
 const initiateMaskingTrade = () => {
   // 这里可以跳转到交易页面或打开交易模态框
   console.log('发起定制脱敏交易:', dataset.value);
-  // router.push(`/trade/masking/${blockchainName.value}/${datasetName.value}`);
+  router.push(`/dataset/requestDataTrade/${blockchainName.value}/${datasetName.value}`);
 };
 
 // 请求验证数据服务
 const requestDataService = () => {
   // 这里可以跳转到数据服务页面或打开服务请求模态框
   console.log('请求验证数据服务:', dataset.value);
-  // router.push(`/service/data/${blockchainName.value}/${datasetName.value}`);
+  router.push(`/dataset/requestDataService/${blockchainName.value}/${datasetName.value}`);
 };
 
 // 在IPFS上查看
