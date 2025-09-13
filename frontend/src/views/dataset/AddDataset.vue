@@ -527,4 +527,26 @@ onUnmounted(() => {
   color: #1976d2;
   font-size: 14px;
 }
+
+/* 美化表单标题样式 */
+.input-group-static label {
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+  text-transform: none !important;
+  letter-spacing: 0.3px !important;
+  position: relative !important;
+}
+
+.input-group-static label::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  border-radius: 1px;
+}
 </style>
