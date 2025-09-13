@@ -1,4 +1,4 @@
-import {initBlockchainTable, getAllBlockchains, deleteBlockchainByName, findBlockchainByName, addBlockchain, deleteBlockchainTable} from '../database/blockchainTable.mjs';
+import {initBlockchainTable, getAllBlockchains, deleteBlockchainByName, getBlockchain, addBlockchain, deleteBlockchainTable} from '../database/blockchains/blockchainsTable.mjs';
 
 import logger from '../log.mjs';
 
@@ -13,7 +13,7 @@ await addBlockchain('testBlockchain1', '测试区块链1', '测试区块链描�
 await addBlockchain('testBlockchain2', '测试区块链2', '测试区块链描述2');
 await addBlockchain('testBlockchain3', '测试区块链3', '测试区块链描述3');
 await addBlockchain('testBlockchain4', '测试区块链4', '测试区块链描述4');
-const findResponse = await findBlockchainByName('testBlockchain1');
+const findResponse = await getBlockchain('testBlockchain1');
 // 输出找到的单个blockchain记录
 logger.debug('找到的区块链记录:', JSON.stringify(findResponse, null, 2));
 const blockchainsAfterDelete = await getAllBlockchains();

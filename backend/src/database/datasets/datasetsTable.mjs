@@ -1,19 +1,5 @@
-import sqlite3 from 'sqlite3';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-import { promisify } from 'util';
-import logger from '../log.mjs';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// 创建数据库连接
-const db = new sqlite3.Database(join(__dirname, 'database.db'));
-
-// 将数据库方法转换为 Promise 版本
-const dbRun = promisify(db.run.bind(db));
-const dbGet = promisify(db.get.bind(db));
-const dbAll = promisify(db.all.bind(db));
+import { dbRun, dbGet, dbAll } from '../db.mjs';
+import logger from '../../utils/log.mjs';
 
 export async function initDatasetTable(blockchainName) {
 	try {
@@ -56,8 +42,7 @@ export async function addDataset(blockchainName, name, fullName, description, ow
 	try {
 		logger.debug(`creating dataset for blockchain: ${blockchainName}...`);
 		logger.debug(`params: ${JSON.stringify({ blockchainName, name, fullName, description, owner, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, hash, maskingDatasetIPFSAddress }, null, 2)}`)
-		const stmt = db.prepare(`INSERT INTO datasets_${blockchainName} (name, fullName, description, owner, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, hash, maskingDatasetIPFSAddress) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-		stmt.run([name, fullName, description, owner, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, hash, maskingDatasetIPFSAddress]);
+		await dbRun(`INSERT INTO datasets_${blockchainName} (name, fullName, description, owner, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, hash, maskingDatasetIPFSAddress) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [name, fullName, description, owner, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, hash, maskingDatasetIPFSAddress]);
 		logger.debug(`create dataset for blockchain: ${blockchainName} success`);
 		return true;
 	} catch (err) {

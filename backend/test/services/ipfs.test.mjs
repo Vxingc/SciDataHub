@@ -6,5 +6,4 @@ async function main() {
 
 }
 
-// 如果直接运行此文件
 main().catch(console.error);

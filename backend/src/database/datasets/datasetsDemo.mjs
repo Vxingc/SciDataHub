@@ -1,182 +1,19 @@
-import { getAllBlockchains } from './blockchainList.mjs';
-import { initDatasetTable, deleteDatasetTable, addDataset, deleteDataset, getAllDatasets, getPublicDatasets, updateMaskingDatasetIPFSAddress, getDatasetsByOwner, getDatasetByDatasetName, updateDatasetInfo, updateDatasetPublicLevel, updateDatasetHash } from './database/datasetTable.mjs';
-import logger from './log.mjs';
-import { generateIPFSCID, randStr, hash } from './utils.mjs';
-
-export async function initDatasetTables() {
-    try {
-        // 获取所有区块链name
-        const getResponse = await getAllBlockchains();
-        const blockchains = getResponse.blockchains;
-        for (const blockchain of blockchains) {
-            await initDatasetTable(blockchain.name);
-            logger.debug(`初始化数据集表 for blockchain: ${blockchain.name} success`);
-        }
-        logger.debug('初始化数据集表成功');
-    } catch (error) {
-        logger.error('初始化数据集表失败:', error);
-    }
-}
-
-export async function deleteDatasetTables() {
-    try {
-        // 获取所有区块链name
-        const getResponse = await getAllBlockchains();
-        const blockchains = getResponse.blockchains;
-        for (const blockchain of blockchains) {
-            await deleteDatasetTable(blockchain.name);
-            logger.debug(`删除数据集表 for blockchain: ${blockchain.name} success`);
-        }
-        logger.debug('删除数据集表成功');
-    } catch (error) {
-        logger.error('删除数据集表失败:', error);
-    }
-}
+import { addDataset, initDatasetTable } from './datasetsTable.mjs';
+import { generateIPFSCID, randStr, hash } from '../../utils/utils.mjs';
+import logger from '../../utils/log.mjs';
 
 
-
-export async function handleAddDataset(req, res) {
-    try {
-        const { blockchainName } = req.params;
-        const { name, fullName, description, owner, isPublic = false, canMaskingShare = false, canCustomMaskingTrade = false, canDataService = false, maskingDatasetIPFSAddress = '' } = req.body;
-        await addDataset(blockchainName, name, fullName, description, owner, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, maskingDatasetIPFSAddress);
-        logger.debug(`创建数据集 for blockchain: ${blockchainName} success`);
-        res.json({ success: true, message: '数据集创建成功' })
-    } catch (error) {
-        logger.error(`创建数据集 for blockchain: ${blockchainName} failed: ${error}`);
-        res.json({ success: false, message: '数据集创建失败' });
-    }
-}
-
-export async function handleDeleteDataset(req, res) {
-    try {
-        const { blockchainName, name } = req.body;
-        await deleteDataset(blockchainName, name);
-        logger.debug(`删除数据集 for blockchain: ${blockchainName} success`);
-        res.json({ success: true, message: '数据集删除成功' })
-    } catch (error) {
-        logger.error(`删除数据集 for blockchain: ${blockchainName} failed: ${error}`);
-        res.json({ success: false, message: '数据集删除失败' });
-    }
-}
-
-export async function handleGetAllDatasets(req, res) {
-    try {
-        const { blockchainName } = req.body;
-        const result = await getAllDatasets(blockchainName);
-        logger.debug(`获取所有数据集 for blockchain: ${blockchainName} success`);
-        res.json({ success: true, message: '数据集获取成功', data: result })
-    } catch (error) {
-        logger.error(`获取所有数据集 for blockchain: ${blockchainName} failed: ${error}`);
-        res.json({ success: false, message: '数据集获取失败' });
-    }
-}
-
-export async function handleGetPublicDatasets(req, res) {
-    try {
-        const { blockchainName } = req.params;
-        const result = await getPublicDatasets(blockchainName);
-        logger.debug(`获取所有公开数据集 for blockchain: ${blockchainName} success`);
-        res.json({ success: true, message: '公开数据集获取成功', data: result })
-    } catch (error) {
-        logger.error(`获取所有公开数据集 for blockchain: ${blockchainName} failed: ${error}`);
-        res.json({ success: false, message: '公开数据集获取失败' });
-    }
-}
-
-export async function handleGetDatasetByOwner(req, res) {
-    try {
-        const { blockchainName, owner } = req.body;
-        const result = await getDatasetByOwner(blockchainName, owner);
-        res.json({ success: true, message: '数据集获取成功', data: result })
-    } catch (error) {
-        res.json({ success: false, message: '数据集获取失败', error });
-    }
-}
-
-export async function handleGetDatasetsByUsername(req, res) {
-    try {
-        const { name } = req.params;
-        // 遍历所有dataset表
-        const response = await getAllBlockchains();
-        const blockchains = response.blockchains;
-        const datasets = [];
-        for (const blockchain of blockchains) {
-            const results = await getDatasetsByOwner(blockchain.name, name);
-            // 遍历results列表，给每一项添加blockchainName 
-            for (const result of results){
-                result.blockchainName = blockchain.name;
-            }
-            // logger.debug(`getDatasetsByOwner: ${JSON.stringify(results, null, 2)}`)
-            datasets.push(...results)
-        }
-        res.json({ success: true, message: '数据集获取成功', data: datasets })
-    } catch (error) {
-        res.json({ success: false, message: '数据集获取失败', error });
-    }
-}
-
-export async function handleGetDatasetByDatasetName(req, res) {
-    try {
-        const { blockchainName, name } = req.params;
-        const result = await getDatasetByDatasetName(blockchainName, name);
-        res.json({ success: true, message: '数据集获取成功', data: result })
-    } catch (error) {
-        res.json({ success: false, message: '数据集获取失败', error });
-    }
-}
-
-export async function handleUpdateDatasetInfo(req, res) {
-    try {
-        const { blockchainName, name } = req.params;
-        const { fullName, description } = req.body;
-        const updatedDataset = await updateDatasetInfo(blockchainName, name, fullName, description);
-        res.json({ success: true, message: '数据集信息更新成功', data: updatedDataset })
-    } catch (error) {
-        res.json({ success: false, message: '数据集信息更新失败', error });
-    }
-}
-
-export async function handleUpdateDatasetPublicLevel(req, res) {
-    try {
-        const { blockchainName, name } = req.params;
-        const { isPublic, canMaskingShare, canCustomMaskingTrade, canDataService } = req.body;
-        logger.debug(`handleUpdateDatasetPublicLevel: ${JSON.stringify({ blockchainName, name, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService }, null, 2)}`)
-        const updatedDataset = await updateDatasetPublicLevel(blockchainName, name, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService);
-        res.json({ success: true, message: '数据集公开级别更新成功', data: updatedDataset })
-    } catch (error) {
-        res.json({ success: false, message: '数据集公开级别更新失败', error });
-    }
-}
-
-export async function handleUpdateDatasetHash(req, res) {
-    try {
-        const { blockchainName, name } = req.params;
-        const { hash } = req.body;
-        logger.debug(`handleUpdateDatasetHash: ${JSON.stringify({ blockchainName, name, hash }, null, 2)}`)
-        const updatedDataset = await updateDatasetHash(blockchainName, name, hash);
-        res.json({ success: true, message: '数据集哈希更新成功', data: updatedDataset })
-    } catch (error) {
-        res.json({ success: false, message: '数据集哈希更新失败', error });
-    }
-}
-
-export async function handleUpdateMaskingDatasetIPFSAddress(req, res) {
-    try {
-        const { blockchainName, name } = req.params;
-        const { maskingDatasetIPFSAddress } = req.body;
-        logger.debug(`handleUpdateMaskingDatasetIPFSAddress: ${JSON.stringify({ blockchainName, name, maskingDatasetIPFSAddress }, null, 2)}`)
-        const updatedDataset = await updateMaskingDatasetIPFSAddress(blockchainName, name, maskingDatasetIPFSAddress);
-        res.json({ success: true, message: '数据集IPFS地址更新成功', data: updatedDataset })
-    } catch (error) {
-        res.json({ success: false, message: '数据集IPFS地址更新失败', error });
-    }
-}
 
 export async function addDemoDatasets() {
     try {
+        await initDatasetTable('Physics');
+        await initDatasetTable('Biology');
+        await initDatasetTable('Medicine');
+        await initDatasetTable('ArtificialIntelligence');
+        await initDatasetTable('CyberSecurity');
+        
         // Physics 物理学数据集
-        await addDataset('Physics', 'quantum_mechanics', '量子力学实验数据集', '包含量子态测量、量子纠缠和量子隧道效应的实验数据，用于量子物理研究和量子计算开发', 'demoDataOwner', true, true, true, true,await hash(await randStr(10)), await generateIPFSCID());
+        await addDataset('Physics', 'quantum_mechanics', '量子力学实验数据集', '包含量子态测量、量子纠缠和量子隧道效应的实验数据，用于量子物理研究和量子计算开发', 'demoDataOwner', true, true, true, true, await hash(await randStr(10)), await generateIPFSCID());
         await addDataset('Physics', 'particle_physics', '粒子物理碰撞数据', '高能粒子对撞实验数据，包含希格斯玻色子、夸克和轻子的探测记录，支持标准模型验证研究', 'demoDataOwner', true, true, true, false, await hash(await randStr(10)), await generateIPFSCID());
         await addDataset('Physics', 'astrophysics', '天体物理观测数据', '包含恒星光谱、星系红移、引力波信号等天文观测数据，用于宇宙学和相对论研究', 'demoDataOwner', true, true, false, false, await hash(await randStr(10)), await generateIPFSCID());
         await addDataset('Physics', 'condensed_matter', '凝聚态物理材料数据', '固体材料的电子结构、磁性、超导性质测量数据，支持新材料设计和相变研究', 'demoDataOwner', false, false, false, false, await hash(await randStr(10)), await generateIPFSCID());
@@ -219,4 +56,4 @@ export async function addDemoDatasets() {
     } catch (error) {
         logger.error('添加默认数据集失败:', error);
     }
-}
+};
