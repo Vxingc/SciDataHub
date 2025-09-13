@@ -17,11 +17,13 @@ const $notify = inject('$notify');
 const userName = ref('');
 const route = useRoute();
 const error = ref('');
-const selectedIsPublic = ref(true);
+// 默认数据集为公开，不再需要用户选择
+// const selectedIsPublic = ref(true);
 
 // 区块链列表
 const blockchains = ref([]);
 const selectedBlockchain = ref('');
+const isBlockchainDropdownOpen = ref(false);
 
 const fileInput = ref(null);
 
@@ -31,7 +33,7 @@ const dataset = ref({
   fullName: '',
   description: '',
   hash: '',
-  ipfsAddress: '',
+  signature: '',
   file: null
 });
 
@@ -85,26 +87,38 @@ const generateRandomString = (length = 10) => {
   return result;
 };
 
+// 选择区块链
+const selectBlockchain = (blockchain) => {
+  selectedBlockchain.value = blockchain.name;
+  isBlockchainDropdownOpen.value = false;
+};
+
+// 点击外部关闭下拉框
+const closeDropdown = () => {
+  isBlockchainDropdownOpen.value = false;
+};
+
 // 生成测试用例数据
 const generateTestCase = () => {
   const randomId = generateRandomString(8);
 
   // 填充数据集信息
-  dataset.value.name = `测试数据集_${randomId}`;
-  dataset.value.fullName = `完整测试数据集名称_${randomId}`;
-  dataset.value.description = `这是一个测试数据集的描述信息_${generateRandomString(15)}`;
-  dataset.value.ipfsAddress = `QmTest${generateRandomString(20)}`;
+  dataset.value.name = `测试数据集名称：${generateRandomString(8)}`;
+  dataset.value.fullName = `完整测试数据集名称：${generateRandomString(8)}`;
+  dataset.value.description = `测试数据集的描述信息：${generateRandomString(15)}`;
+  
+  // 生成模拟认证签名
+  dataset.value.signature = `${generateRandomString(64)}`;
 
   // 生成模拟hash
-  dataset.value.hash = generateRandomString(64);
+  dataset.value.hash = `${generateRandomString(64)}`;
 
   // 选择第一个区块链（如果存在）
   if (blockchains.value.length > 0) {
     selectedBlockchain.value = blockchains.value[0].name;
   }
 
-  // 默认选择公开
-  selectedIsPublic.value = true;
+  // 数据集默认为公开，无需用户选择
 
   console.log('测试用例已生成:', dataset.value);
 };
@@ -124,6 +138,10 @@ const uploadDataset = async () => {
     $notify.warning('请先选择文件以计算Hash');
     return;
   }
+  if (!dataset.value.signature) {
+    $notify.warning('请输入认证签名');
+    return;
+  }
   if (!selectedBlockchain.value) {
     $notify.warning('请选择要存证的区块链');
     return;
@@ -135,9 +153,10 @@ const uploadDataset = async () => {
       fullName: dataset.value.fullName,
       description: dataset.value.description,
       owner: userName.value,
-      isPublic: selectedIsPublic.value,
+      isPublic: true, // 默认设置为公开
       hash: dataset.value.hash,
-      ipfsAddress: dataset.value.ipfsAddress
+      signature: dataset.value.signature,
+      ipfsAddress: '' // IPFS地址设置为空
     };
 
     console.log('上传数据集请求:', requestData);
@@ -156,7 +175,7 @@ const uploadDataset = async () => {
         fullName: '',
         description: '',
         hash: '',
-        ipfsAddress: '',
+        signature: '',
         file: null
       };
       selectedBlockchain.value = '';
@@ -181,6 +200,14 @@ onMounted(() => {
     console.error('用户未登录或用户信息获取失败');
   }
 
+  // 添加全局点击事件监听器
+  document.addEventListener('click', closeDropdown);
+});
+
+// 组件卸载时移除事件监听器
+import { onUnmounted } from 'vue';
+onUnmounted(() => {
+  document.removeEventListener('click', closeDropdown);
 });
 </script>
 
@@ -218,11 +245,11 @@ onMounted(() => {
                 </div>
                 <div class="col-lg-7">
                   <form class="p-3" id="dataset-form" method="post">
-                    <div class="card-header px-4 py-sm-5 py-3">
-                      <h2>科研数据集-存证</h2>
-                      <p class="lead">计算科研数据集摘要，并上传到区块链存证</p>
+                    <div class="card-header px-4 py-2">
+                      <h2>上传科研数据集</h2>
+                      <p class="lead mb-0">将已认证科研数据集上传到区块链</p>
                     </div>
-                    <div class="card-body pt-4">
+                    <div class="card-body pt-2">
                       <div class="row mb-4">
                         <div class="col-12">
                           <div class="upload-area p-4 border border-2 border-dashed rounded-3 text-center bg-light">
@@ -278,32 +305,48 @@ onMounted(() => {
                         </div>
                         <div class="col-md-6 pe-2 mb-4">
                           <div class="input-group input-group-static mb-4">
-                            <label>IPFS地址</label>
-                            <input type="text" class="form-control" placeholder="输入IPFS地址（可选）"
-                              v-model="dataset.ipfsAddress" />
+                            <label>上传认证签名</label>
+                            <input type="text" class="form-control" placeholder="输入认证机构提供的签名" v-model="dataset.signature" />
                           </div>
                         </div>
-                      </div>
-                      <div class="col-md-6 pe-2 mb-4">
-                        <div class="input-group input-group-static mb-4">
-                          <label>选择区块链网络</label>
-                          <select class="form-control" v-model="selectedBlockchain" required>
-                            <option value="" disabled>可访问的区块链</option>
-                            <option v-for="blockchain in blockchains" :key="blockchain.id" :value="blockchain.name">
-                              {{ blockchain.fullName }}
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div class="col-md-6 pe-2 mb-4">
-                        <div class="input-group input-group-static mb-4">
-                          <label>选择是否公开数据集</label>
-                          <select class="form-control" v-model="selectedIsPublic" required>
-                            <!-- 公开和私有两种选项 -->
-                            <option value=true>公开</option>
-                            <option value=false>私有</option>
-                          </select>
+                        <div class="col-md-6 pe-2 mb-4">
+                          <div class="input-group input-group-static mb-4">
+                            <label>选择区块链网络</label>
+                            <div class="blockchain-input-wrapper" @click.stop>
+                              <input 
+                                type="text" 
+                                class="form-control blockchain-input" 
+                                :placeholder="selectedBlockchain ? '' : '选择可访问的区块链网络'"
+                                :value="selectedBlockchain ? blockchains.find(b => b.name === selectedBlockchain)?.fullName : ''"
+                                @click="isBlockchainDropdownOpen = !isBlockchainDropdownOpen"
+                                readonly
+                              />
+                              <div class="input-dropdown-arrow">
+                                <i class="fas fa-chevron-down" :class="{ 'rotated': isBlockchainDropdownOpen }"></i>
+                              </div>
+                              
+                              <div v-if="isBlockchainDropdownOpen" class="dropdown-options">
+                                <div 
+                                  v-for="blockchain in blockchains" 
+                                  :key="blockchain.id" 
+                                  class="dropdown-option"
+                                  @click="selectBlockchain(blockchain)"
+                                  :class="{ 'selected': selectedBlockchain === blockchain.name }"
+                                >
+                                  <div class="blockchain-icon">
+                                    <i class="fas fa-cube"></i>
+                                  </div>
+                                  <div class="blockchain-info">
+                                    <div class="blockchain-name">{{ blockchain.fullName }}</div>
+                                    <div class="blockchain-network">{{ blockchain.name }}</div>
+                                  </div>
+                                  <div v-if="selectedBlockchain === blockchain.name" class="check-icon">
+                                    <i class="fas fa-check"></i>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
 
@@ -366,5 +409,122 @@ onMounted(() => {
   opacity: 1;
   transform: scale(1.05);
   transition: all 0.3s ease;
+}
+
+/* 区块链选择输入框样式 */
+.blockchain-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.blockchain-input {
+  cursor: pointer;
+  padding-right: 40px !important;
+}
+
+.blockchain-input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.input-dropdown-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+.input-dropdown-arrow .rotated {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.blockchain-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-right: 12px;
+  font-size: 14px;
+}
+
+.blockchain-info {
+  flex: 1;
+}
+
+.blockchain-name {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.blockchain-network {
+  font-size: 12px;
+  color: #718096;
+  margin-top: 2px;
+}
+
+.dropdown-options {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #d2d6da;
+  border-radius: 0.375rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.dropdown-option:last-child {
+  border-bottom: none;
+}
+
+.dropdown-option:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-option.selected {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.dropdown-option.selected .blockchain-name {
+  color: #1976d2;
+}
+
+.check-icon {
+  color: #1976d2;
+  font-size: 14px;
 }
 </style>
