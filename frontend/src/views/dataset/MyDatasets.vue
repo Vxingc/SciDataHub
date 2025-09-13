@@ -37,7 +37,7 @@
         <div class="text-center mb-5">
           <button class="btn btn-upload btn-lg px-5 py-3 shadow-lg" @click="router.push('/adddataset')">
             <i class="fas fa-cloud-upload-alt me-3"></i>
-            <span class="fw-bold">新建数据集</span>
+            <span class="fw-bold">上传数据集</span>
           </button>
           <!-- <p class="text-muted mt-2 mb-0">上传您的科研数据集到区块链</p> -->
         </div>
@@ -58,97 +58,46 @@
 
         <!-- 数据集列表 -->
         <div v-else-if="datasets.length > 0">
-          <!-- 私有数据集 -->
-          <div v-if="privateDatasets.length > 0" class="mb-5">
-            <div class="d-flex align-items-center mb-3">
-              <i class="fas fa-lock text-secondary me-2"></i>
-              <h4 class="mb-0 text-secondary">私有数据集</h4>
-              <span class="badge bg-secondary ms-2">{{ privateDatasets.length }}</span>
-            </div>
-            <div class="card border-secondary">
-              <div class="card-body">
-                <div class="row">
-                  <div 
-                    class="col-md-6 col-lg-4 mb-4" 
-                    v-for="dataset in privateDatasets" 
-                    :key="dataset.id"
-                  >
-                    <div class="card h-100 shadow-sm border-secondary">
-                      <div class="card-body">
-                        <h5 class="card-title mb-3">{{ dataset.fullName || dataset.name }}</h5>
-                        <p class="card-text text-muted mb-3">{{ dataset.description }}</p>
-                                                
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                          <small class="text-muted">
-                            <i class="fas fa-database me-1"></i>
-                            {{ dataset.name }}
-                          </small>
-                          <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-outline-secondary" @click="editDataset(dataset)">
-                              <i class="fas fa-edit me-1"></i>编辑
-                            </button>
-                            <button class="btn btn-sm btn-primary" @click="viewDataset(dataset)">
-                              查看详情
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <!-- 标签区域 -->
-                        <div class="d-flex flex-wrap gap-1">
-                          <span class="badge bg-secondary">私有</span>
-                          <span v-if="dataset.canMaskingShare" class="badge bg-info">可脱敏共享</span>
-                          <span v-if="dataset.canCustomMaskingTrade" class="badge bg-warning">可定制脱敏交易</span>
-                          <span v-if="dataset.canDataService" class="badge bg-primary">可验证数据服务</span>
+          <div class="d-flex align-items-center mb-3">
+            <i class="fas fa-database text-primary me-2"></i>
+            <h4 class="mb-0 text-primary">我的数据集</h4>
+            <span class="badge bg-primary ms-2">{{ datasets.length }}</span>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                <div 
+                  class="col-md-6 col-lg-4 mb-4" 
+                  v-for="dataset in datasets" 
+                  :key="dataset.id"
+                >
+                  <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                      <h5 class="card-title mb-3">{{ dataset.fullName || dataset.name }}</h5>
+                      <p class="card-text text-muted mb-3">{{ dataset.description }}</p>
+                      
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">
+                          <i class="fas fa-database me-1"></i>
+                          {{ dataset.name }}
+                        </small>
+                        <div class="btn-group" role="group">
+                          <button class="btn btn-sm btn-outline-secondary" @click="editDataset(dataset)">
+                            <i class="fas fa-edit me-1"></i>编辑
+                          </button>
+                          <button class="btn btn-sm btn-primary" @click="viewDataset(dataset)">
+                            查看详情
+                          </button>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 公开数据集 -->
-          <div v-if="publicDatasets.length > 0">
-            <div class="d-flex align-items-center mb-3">
-              <i class="fas fa-globe text-success me-2"></i>
-              <h4 class="mb-0 text-success">公开数据集</h4>
-              <span class="badge bg-success ms-2">{{ publicDatasets.length }}</span>
-            </div>
-            <div class="card border-success">
-              <div class="card-body">
-                <div class="row">
-                  <div 
-                    class="col-md-6 col-lg-4 mb-4" 
-                    v-for="dataset in publicDatasets" 
-                    :key="dataset.id"
-                  >
-                    <div class="card h-100 shadow-sm border-success">
-                      <div class="card-body">
-                        <h5 class="card-title mb-3">{{ dataset.fullName || dataset.name }}</h5>
-                        <p class="card-text text-muted mb-3">{{ dataset.description }}</p>                      
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                          <small class="text-muted">
-                            <i class="fas fa-database me-1"></i>
-                            {{ dataset.name }}
-                          </small>
-                          <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-outline-secondary" @click="editDataset(dataset)">
-                              <i class="fas fa-edit me-1"></i>编辑
-                            </button>
-                            <button class="btn btn-sm btn-primary" @click="viewDataset(dataset)">
-                              查看详情
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <!-- 标签区域 -->
-                        <div class="d-flex flex-wrap gap-1">
-                          <span class="badge bg-success">公开</span>
-                          <span v-if="dataset.canMaskingShare" class="badge bg-info">可脱敏共享</span>
-                          <span v-if="dataset.canCustomMaskingTrade" class="badge bg-warning">可定制脱敏交易</span>
-                          <span v-if="dataset.canDataService" class="badge bg-primary">可验证数据服务</span>
-                        </div>
+                      
+                      <!-- 标签区域 -->
+                      <div class="d-flex flex-wrap gap-1">
+                        <span v-if="dataset.isPublic" class="badge bg-success">公开</span>
+                        <span v-else class="badge bg-secondary">私有</span>
+                        <span v-if="dataset.canMaskingShare" class="badge bg-info">可脱敏共享</span>
+                        <span v-if="dataset.canCustomMaskingTrade" class="badge bg-warning">可定制脱敏交易</span>
+                        <span v-if="dataset.canDataService" class="badge bg-primary">可验证数据服务</span>
                       </div>
                     </div>
                   </div>
@@ -195,14 +144,6 @@ const datasets = ref([]);
 const loading = ref(false);
 const error = ref('');
 
-// 计算属性：按公开状态分类数据集
-const privateDatasets = computed(() => {
-  return datasets.value.filter(dataset => !dataset.isPublic);
-});
-
-const publicDatasets = computed(() => {
-  return datasets.value.filter(dataset => dataset.isPublic);
-});
 
 // 获取数据集数据
 const fetchDatasets = async () => {
@@ -327,34 +268,20 @@ onUnmounted(() => {
   border: none;
   border-radius: 50px;
   font-size: 1.1rem;
+  color: white !important;
+  font-weight: bold;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
 }
 
 .btn-upload:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
   background: linear-gradient(45deg, #0056b3, #004085);
+  color: white !important;
 }
 
 .btn-upload:active {
   transform: translateY(0);
-}
-
-.btn-upload::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.btn-upload:hover::before {
-  left: 100%;
 }
 
 /* 分类框样式 */
