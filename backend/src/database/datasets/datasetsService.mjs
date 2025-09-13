@@ -152,7 +152,7 @@ export const handleGetDatasetsByOwner = async (req, res) => {
 };
 
 // 根据用户名获取所有区块链上的数据集路由处理函数
-export const handleGetDatasetsByUsername = async (req, res) => {
+export const handleGetAllDatasetsByOwner = async (req, res) => {
     try {
         const { name } = req.params;
         // 遍历所有dataset表

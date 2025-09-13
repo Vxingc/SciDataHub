@@ -10,13 +10,13 @@ export async function addDemoUser() {
         // 创建数据拥有者演示账户
         const dataOwnerUsername = 'demoDataOwner';
         const dataOwnerPassword = 'demoDataOwner';
-        const hashedDataOwnerPassword = hashPassword(dataOwnerPassword);
+        const hashedDataOwnerPassword = await hashPassword(dataOwnerPassword);
         await addUser(dataOwnerUsername, hashedDataOwnerPassword);
 
         // 创建数据请求者演示账户
         const dataRequesterUsername = 'demoDataRequester';
         const dataRequesterPassword = 'demoDataRequester';
-        const hashedDataRequesterPassword = hashPassword(dataRequesterPassword);
+        const hashedDataRequesterPassword = await hashPassword(dataRequesterPassword);
         await addUser(dataRequesterUsername, hashedDataRequesterPassword);
         
         return {

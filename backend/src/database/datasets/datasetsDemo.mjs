@@ -1,4 +1,4 @@
-import { addDataset, initDatasetTable } from './datasetsTable.mjs';
+import { addDataset, initDatasetTable, deleteDatasetTable } from './datasetsTable.mjs';
 import { generateIPFSCID, randStr, hash } from '../../utils/utils.mjs';
 import logger from '../../utils/log.mjs';
 
@@ -6,6 +6,12 @@ import logger from '../../utils/log.mjs';
 
 export async function addDemoDatasets() {
     try {
+        await deleteDatasetTable('Physics');
+        await deleteDatasetTable('Biology');
+        await deleteDatasetTable('Medicine');
+        await deleteDatasetTable('ArtificialIntelligence');
+        await deleteDatasetTable('CyberSecurity');
+        
         await initDatasetTable('Physics');
         await initDatasetTable('Biology');
         await initDatasetTable('Medicine');

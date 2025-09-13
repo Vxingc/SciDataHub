@@ -210,7 +210,7 @@ const fetchDatasets = async () => {
   error.value = '';
   
   try {
-    const response = await axios.get(`/getDatasetsByUsername/${userName.value}`);
+    const response = await axios.get(`/getAlldatasetsByOwner/${userName.value}`);
     if (response.data.success) {
       datasets.value = response.data.data || [];
     } else {

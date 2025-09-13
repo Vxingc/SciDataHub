@@ -41,7 +41,6 @@ await initBlockchainTable();
 await addDemoBlockchains();
 
 // 初始化数据集表
-await initDatasetTable();
 await addDemoDatasets();
 
 

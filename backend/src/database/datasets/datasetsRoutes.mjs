@@ -5,7 +5,7 @@ import {
     handleGetAllDatasets,
     handleGetPublicDatasets,
     handleGetDatasetsByOwner,
-    handleGetDatasetsByUsername,
+    handleGetAllDatasetsByOwner,
     handleGetDatasetByDatasetName,
     handleUpdateDatasetInfo,
     handleUpdateDatasetPublicLevel,
@@ -21,7 +21,7 @@ router.delete('/dataset/:blockchainName/:name', handleDeleteDataset);
 router.get('/datasets/:blockchainName', handleGetAllDatasets);
 router.get('/getPublicDatasets/:blockchainName', handleGetPublicDatasets);
 router.get('/datasets/:blockchainName/owner/:owner', handleGetDatasetsByOwner);
-router.get('/getDatasetsByName/:name', handleGetDatasetsByUsername);
+router.get('/getAlldatasetsByOwner/:name', handleGetAllDatasetsByOwner);
 router.get('/getDatasetByDatasetName/:blockchainName/:name', handleGetDatasetByDatasetName);
 router.post('/updateDatasetInfo/:blockchainName/:name', handleUpdateDatasetInfo);
 router.post('/updateDatasetPublicLevel/:blockchainName/:name', handleUpdateDatasetPublicLevel);

@@ -6,7 +6,7 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:manual": "node test/blockchainList.test.mjs",
-    "start": "node app.js",
+    "start": "node src/app.mjs",
     "ipfs": "node test/ipfs_test.mjs",
     "chaincode": "node test/chaincode_test.mjs",
     "log": "node test/log_test.mjs"
