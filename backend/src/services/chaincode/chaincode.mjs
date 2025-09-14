@@ -85,9 +85,10 @@ export async function initializeContract() {
     return contract;
 }
 
-export async function initLedger(contract) {
+export async function initLedger() {
     logger.info("initLedger")
     try {
+        const contract = await initializeContract();
         await contract.submitTransaction('InitLedger');
     } catch (error) {
         logger.error('initLedger fail', error);

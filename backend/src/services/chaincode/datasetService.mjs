@@ -1,5 +1,5 @@
-import { initializeContract } from '../../config/fabricConfig.mjs';
-import logger from '../../config/logger.mjs';
+import { initializeContract } from './chaincode.mjs';
+import logger from '../../utils/log.mjs';
 
 const utf8Decoder = new TextDecoder();
 
@@ -29,10 +29,9 @@ export async function bcAddDataset(req, res) {
     try {
         const { hash, owner } = req.body;
         const contract = await initializeContract();
-        
-        logger.info(`bcAddDataset, hash: ${hash}, owner: ${owner}`);
+
         await contract.submitTransaction('AddDataset', hash, owner);
-        
+        logger.debug(`bcAddDataset success, hash: ${hash}, owner: ${owner}`);
         res.json({ success: true, message: '数据集添加成功' });
     } catch (error) {
         logger.error('bcAddDataset fail', error);

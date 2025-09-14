@@ -1,5 +1,5 @@
-import { initializeContract } from '../../config/fabricConfig.mjs';
-import logger from '../../config/logger.mjs';
+import { initializeContract } from './chaincode.mjs';
+import logger from '../../utils/log.mjs';
 
 const utf8Decoder = new TextDecoder();
 
