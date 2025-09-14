@@ -58,46 +58,72 @@
 
         <!-- 数据集列表 -->
         <div v-else-if="datasets.length > 0">
-          <div class="d-flex align-items-center mb-3">
+          <div class="d-flex align-items-center mb-4">
             <i class="fas fa-database text-primary me-2"></i>
             <h4 class="mb-0 text-primary">我的数据集</h4>
             <span class="badge bg-primary ms-2">{{ datasets.length }}</span>
           </div>
-          <div class="card">
-            <div class="card-body">
-              <div class="row">
-                <div 
-                  class="col-md-6 col-lg-4 mb-4" 
-                  v-for="dataset in datasets" 
-                  :key="dataset.id"
-                >
-                  <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                      <h5 class="card-title mb-3">{{ dataset.fullName || dataset.name }}</h5>
-                      <p class="card-text text-muted mb-3">{{ dataset.description }}</p>
-                      
-                      <div class="d-flex justify-content-between align-items-center mb-3">
-                        <small class="text-muted">
-                          <i class="fas fa-database me-1"></i>
-                          {{ dataset.name }}
-                        </small>
-                        <div class="btn-group" role="group">
-                          <button class="btn btn-sm btn-outline-secondary" @click="editDataset(dataset)">
-                            <i class="fas fa-edit me-1"></i>编辑
-                          </button>
-                          <button class="btn btn-sm btn-primary" @click="viewDataset(dataset)">
-                            查看详情
-                          </button>
+          
+          <!-- 数据集卡片列表 -->
+          <div class="dataset-list">
+            <div 
+              class="dataset-card mb-4" 
+              v-for="dataset in datasets" 
+              :key="dataset.id"
+            >
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <!-- 左侧：数据集基本信息 -->
+                    <div class="col-lg-6">
+                      <div class="dataset-info">
+                        <h5 class="dataset-title mb-2">{{ dataset.fullName || dataset.name }}</h5>
+                        <p class="dataset-description text-muted mb-3">{{ dataset.description }}</p>
+                        
+                        <!-- 数据集标识 -->
+                        <div class="dataset-meta mb-3">
+                          <small class="text-muted">
+                            <i class="fas fa-database me-1"></i>
+                            {{ dataset.name }}
+                          </small>
+                          <small class="text-muted ms-3">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            {{ formatDate(dataset.createdAt) }}
+                          </small>
+                        </div>
+                        
+                        <!-- 标签区域 -->
+                        <div class="dataset-tags d-flex flex-wrap gap-1">
+                          <span v-if="dataset.isPublic" class="badge bg-success">公开</span>
+                          <span v-else class="badge bg-secondary">私有</span>
+                          <span v-if="dataset.canMaskingShare" class="badge bg-info">可脱敏共享</span>
+                          <span v-if="dataset.canCustomMaskingTrade" class="badge bg-warning">可定制脱敏交易</span>
+                          <span v-if="dataset.canDataService" class="badge bg-primary">可验证数据服务</span>
                         </div>
                       </div>
-                      
-                      <!-- 标签区域 -->
-                      <div class="d-flex flex-wrap gap-1">
-                        <span v-if="dataset.isPublic" class="badge bg-success">公开</span>
-                        <span v-else class="badge bg-secondary">私有</span>
-                        <span v-if="dataset.canMaskingShare" class="badge bg-info">可脱敏共享</span>
-                        <span v-if="dataset.canCustomMaskingTrade" class="badge bg-warning">可定制脱敏交易</span>
-                        <span v-if="dataset.canDataService" class="badge bg-primary">可验证数据服务</span>
+                    </div>
+                    
+                    <!-- 中间：预留扩展区域 -->
+                    <div class="col-lg-3">
+                      <div class="dataset-extension-area">
+                        <!-- 预留给图例、统计信息等扩展功能 -->
+                        <div class="extension-placeholder">
+                          <!-- 后续可在此添加图例、图表等 -->
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- 右侧：操作按钮 -->
+                    <div class="col-lg-3">
+                      <div class="dataset-actions text-end">
+                        <div class="btn-group-vertical" role="group">
+                          <button class="btn btn-outline-secondary mb-2" @click="editDataset(dataset)">
+                            <i class="fas fa-edit me-2"></i>编辑数据集
+                          </button>
+                          <button class="btn btn-primary" @click="viewDataset(dataset)">
+                            <i class="fas fa-eye me-2"></i>查看详情
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -189,6 +215,13 @@ const createDataset = () => {
   // 跳转到数据集创建页面
   console.log('创建新数据集');
   // router.push(`/dataset/create/${blockchainName.value}`);
+};
+
+// 格式化日期
+const formatDate = (dateString) => {
+  if (!dateString) return '未知时间';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('zh-CN');
 };
 
 onMounted(() => {
@@ -295,7 +328,132 @@ onUnmounted(() => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* 响应式标签布局 */
+/* 数据集卡片样式 */
+.dataset-list {
+  max-width: 100%;
+}
+
+.dataset-card {
+  transition: all 0.3s ease;
+}
+
+.dataset-card:hover {
+  transform: translateY(-2px);
+}
+
+.dataset-card .card {
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.dataset-info {
+  padding-right: 1rem;
+}
+
+.dataset-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.dataset-description {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.dataset-meta {
+  border-bottom: 1px solid #f8f9fa;
+  padding-bottom: 0.75rem;
+}
+
+.dataset-tags {
+  margin-top: 0.5rem;
+}
+
+/* 扩展区域样式 */
+.dataset-extension-area {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #f8f9fa;
+  border-right: 1px solid #f8f9fa;
+  padding: 0 1rem;
+}
+
+.extension-placeholder {
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.extension-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(108, 117, 125, 0.1);
+  border-radius: 50%;
+}
+
+/* 操作按钮区域 */
+.dataset-actions {
+  padding-left: 1rem;
+}
+
+.btn-group-vertical .btn {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+}
+
+.btn-group-vertical .btn:not(:last-child) {
+  margin-bottom: 0.5rem;
+}
+
+/* 响应式布局 */
+@media (max-width: 992px) {
+  .dataset-extension-area {
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid #f8f9fa;
+    border-bottom: 1px solid #f8f9fa;
+    margin: 1rem 0;
+    min-height: 60px;
+  }
+  
+  .extension-placeholder {
+    height: 50px;
+  }
+  
+  .dataset-actions {
+    padding-left: 0;
+    margin-top: 1rem;
+  }
+  
+  .btn-group-vertical {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .btn-group-vertical .btn:not(:last-child) {
+    margin-bottom: 0;
+    margin-right: 0.5rem;
+  }
+}
+
 @media (max-width: 576px) {
   .badge {
     font-size: 0.65rem;
@@ -306,18 +464,31 @@ onUnmounted(() => {
     margin-right: 0.125rem !important;
   }
   
-  .btn-group {
-    flex-direction: column;
-  }
-  
-  .btn-group .btn:not(:last-child) {
-    margin-right: 0;
-    margin-bottom: 0.25rem;
-  }
-  
   .btn-upload {
     font-size: 1rem;
     padding: 0.75rem 2rem !important;
+  }
+  
+  .dataset-title {
+    font-size: 1.1rem;
+  }
+  
+  .dataset-description {
+    font-size: 0.9rem;
+  }
+  
+  .btn-group-vertical {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-group-vertical .btn:not(:last-child) {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .dataset-extension-area {
+    display: none; /* 在小屏幕上隐藏扩展区域 */
   }
 }
 </style>
