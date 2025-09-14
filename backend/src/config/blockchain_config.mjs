@@ -7,7 +7,7 @@ function envOrDefault(key, defaultValue) {
 
 import path from "node:path";
 const channelName = envOrDefault('CHANNEL_NAME', 'mychannel');
-const chaincodeName = envOrDefault('CHAINCODE_NAME', 'datatrading');
+const chaincodeName = envOrDefault('CHAINCODE_NAME', 'scidatahub');
 const mspId = envOrDefault('MSP_ID', 'Org1MSP');
 
 // Path to crypto materials.
@@ -15,6 +15,8 @@ const cryptoPath = envOrDefault(
     'CRYPTO_PATH',
     path.resolve(
         path.dirname("./"),
+        '..',
+        '..',
         '..',
         'blockchain',
         'test-network',

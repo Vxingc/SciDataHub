@@ -1,5 +1,5 @@
-import { randStr, hash } from '../utils.mjs';
-import logger from '../log.mjs';
+import { randStr, hash, generateHashChain } from '../../src/utils/utils.mjs';
+import logger from '../../src/utils/log.mjs';
 
 
 async function testRandStr(){
@@ -21,9 +21,18 @@ async function testHash(){
     }
 }
 
+async function testHashChain(){
+    logger.info("generate hash chain with 10 elements:");
+    const hashChain = await generateHashChain(10);
+    for (let i = 0; i < hashChain.length; i++) {
+        logger.debug(`hashChain[${i}]: ${hashChain[i]}`);
+    }
+}
+
 async function main() {
     await testRandStr();
     await testHash();
+    await testHashChain();
 }
 
 main();

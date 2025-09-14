@@ -19,3 +19,15 @@ export async function hash(str) {
 export async function generateIPFSCID() {
     return "Qm" + await randStr(44);
 }
+
+export async function generateHashChain(len) {
+    const secret = await randStr(64);
+    const hashChain = [];
+    let tempPreImage = secret;
+    for (let i = 0; i < len; i++) {
+        const temphash = await hash(tempPreImage);
+        hashChain.push(temphash);
+        tempPreImage = temphash;
+    }
+    return hashChain;
+}

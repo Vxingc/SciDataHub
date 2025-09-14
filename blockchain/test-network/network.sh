@@ -480,6 +480,8 @@ COMPOSE_FILE_ORG3_CA=compose-ca-org3.yaml
 SOCK="${DOCKER_HOST:-/var/run/docker.sock}"
 DOCKER_SOCK="${SOCK##unix://}"
 
+GOPROXY=https://goproxy.cn,direct
+
 # BFT activated flag
 BFT=0
 
