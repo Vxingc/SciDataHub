@@ -163,11 +163,12 @@
                       <div class="d-flex justify-content-between align-items-start mb-3">
                         <h6 class="mb-0 text-primary">规则 {{ index + 1 }}</h6>
                         <button 
-                          class="btn btn-sm btn-outline-danger" 
+                          class="btn btn-sm btn-danger delete-rule-btn" 
                           @click="removeMaskingRule(index)"
                           :disabled="submitting"
+                          title="删除此规则"
                         >
-                          <i class="fas fa-trash"></i>
+                          ×
                         </button>
                       </div>
 
@@ -775,5 +776,31 @@ onUnmounted(() => {
   box-shadow: none !important;
 }
 
-/* 移除滚动条样式，因为不再需要滚动容器 */
+/* 删除按钮样式 */
+.delete-rule-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: white !important;
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+  line-height: 1;
+}
+
+.delete-rule-btn:hover {
+  background-color: #c82333 !important;
+  border-color: #bd2130 !important;
+  color: white !important;
+}
+
+.delete-rule-btn:active {
+  background-color: #bd2130 !important;
+  border-color: #b21f2d !important;
+}
 </style>
