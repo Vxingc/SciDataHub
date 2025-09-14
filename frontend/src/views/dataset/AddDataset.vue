@@ -167,7 +167,18 @@ const uploadDataset = async () => {
       }
     });
 
-    if (response.data.success) {
+    const bcRequestData = {
+        owner: userName.value,
+        hash: dataset.value.hash
+      }
+
+    const bcresponse = await axios.post(`/bcAddDataset`, bcRequestData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+    if (response.data.success && bcresponse.data.success) {
       $notify.success('数据集存证成功！');
       // 重置表单
       dataset.value = {
@@ -182,8 +193,10 @@ const uploadDataset = async () => {
       if (fileInput.value) {
         fileInput.value.value = '';
       }
-    } else {
-      $notify.error('数据集存证失败: ' + (response.data.message || '未知错误'));
+    } else if (!response.data.success) {
+      $notify.error('服务器连接失败 ' + (response.data.message || '未知错误'));
+    } else if (!bcresponse.data.success) {
+      $notify.error('区块链连接失败: ' + (bcresponse.data.message || '未知错误'));
     }
   } catch (error) {
     console.error('上传数据集失败:', error);
