@@ -11,7 +11,7 @@ import {
 import logger from '../../utils/log.mjs';
 
 // 创建服务订单
-export async function createServiceOrder(req, res) {
+export async function handleAddServiceOrder(req, res) {
     try {
         const { title, description, blockchainName, datasetName, datasetOwner, serviceType, serviceConfig } = req.body;
         const requester = req.user?.username;
@@ -59,7 +59,7 @@ export async function createServiceOrder(req, res) {
 }
 
 // 获取所有服务订单
-export async function getServiceOrders(req, res) {
+export async function handleGetServiceOrders(req, res) {
     try {
         const { blockchainName } = req.params;
 
@@ -88,7 +88,7 @@ export async function getServiceOrders(req, res) {
 }
 
 // 根据请求者获取服务订单
-export async function getServiceOrdersByRequester(req, res) {
+export async function handleGetServiceOrdersByRequester(req, res) {
     try {
         const { blockchainName } = req.params;
         const requester = req.user?.username;
@@ -125,7 +125,7 @@ export async function getServiceOrdersByRequester(req, res) {
 }
 
 // 根据数据拥有者获取服务订单
-export async function getServiceOrdersByOwner(req, res) {
+export async function handleGetServiceOrdersByOwner(req, res) {
     try {
         const { blockchainName, owner } = req.params;
 
@@ -154,7 +154,7 @@ export async function getServiceOrdersByOwner(req, res) {
 }
 
 // 根据数据集获取服务订单
-export async function getServiceOrdersByDatasetName(req, res) {
+export async function handleGetServiceOrdersByDatasetName(req, res) {
     try {
         const { blockchainName, datasetName } = req.params;
 
@@ -183,7 +183,7 @@ export async function getServiceOrdersByDatasetName(req, res) {
 }
 
 // 根据ID获取单个服务订单
-export async function getServiceOrderDetails(req, res) {
+export async function handleGetServiceOrderDetails(req, res) {
     try {
         const { blockchainName, orderId } = req.params;
 
@@ -219,7 +219,7 @@ export async function getServiceOrderDetails(req, res) {
 }
 
 // 更新服务订单状态
-export async function updateServiceOrderState(req, res) {
+export async function handleUpdateServiceOrderState(req, res) {
     try {
         const { blockchainName, orderId } = req.params;
         const { status } = req.body;
@@ -266,7 +266,7 @@ export async function updateServiceOrderState(req, res) {
 }
 
 // 删除服务订单
-export async function removeServiceOrder(req, res) {
+export async function handleRemoveServiceOrder(req, res) {
     try {
         const { blockchainName, orderId } = req.params;
         const currentUser = req.user?.username;
