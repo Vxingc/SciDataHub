@@ -313,7 +313,7 @@
                     :disabled="submitting || !isFormValid"
                   >
                     <i class="fas fa-paper-plane me-2"></i>
-                    {{ submitting ? '提交中...' : '发起请求' }}
+                    {{ submitting ? '提交中...' : '创建订单' }}
                   </button>
                 </div>
               </div>
@@ -478,27 +478,17 @@ const generateTestRequest = () => {
   
   // 填充基本信息
   requestForm.value.title = `${dataset.value.fullName || dataset.value.name} - 定制脱敏数据请求测试`;
-  requestForm.value.description = `这是一个针对数据集"${dataset.value.fullName || dataset.value.name}"的定制脱敏数据请求测试。该请求包含了所有类型的脱敏规则示例，用于验证系统的完整功能。请求方希望获得经过特定条件筛选和脱敏处理的数据子集，以满足数据分析和研究需求。`;
+  requestForm.value.description = `这是一个针对数据集"${dataset.value.fullName || dataset.value.name}"的定制脱敏数据请求测试。包含字符串匹配和数值范围两种脱敏规则示例。`;
   
-  // 生成所有类型的脱敏规则
+  // 生成简化的脱敏规则
   const testRules = [
-    // 字符串 - 等于
+    // 字符串 - 包含子串
     {
       id: ++ruleIdCounter.value,
       keyName: 'name',
       keyType: 'string',
-      constraintType: 'equals',
-      constraintValue: '张三',
-      minValue: null,
-      maxValue: null
-    },
-    // 字符串 - 包含子串
-    {
-      id: ++ruleIdCounter.value,
-      keyName: 'email',
-      keyType: 'string',
       constraintType: 'contains',
-      constraintValue: '@gmail.com',
+      constraintValue: '张',
       minValue: null,
       maxValue: null
     },
@@ -511,53 +501,13 @@ const generateTestRequest = () => {
       constraintValue: '',
       minValue: 18,
       maxValue: 65
-    },
-    // 数值 - 最小值
-    {
-      id: ++ruleIdCounter.value,
-      keyName: 'salary',
-      keyType: 'number',
-      constraintType: 'min',
-      constraintValue: '',
-      minValue: 5000,
-      maxValue: null
-    },
-    // 数值 - 最大值
-    {
-      id: ++ruleIdCounter.value,
-      keyName: 'score',
-      keyType: 'number',
-      constraintType: 'max',
-      constraintValue: '',
-      minValue: null,
-      maxValue: 100
-    },
-    // 字符串 - 等于（另一个示例）
-    {
-      id: ++ruleIdCounter.value,
-      keyName: 'department',
-      keyType: 'string',
-      constraintType: 'equals',
-      constraintValue: '技术部',
-      minValue: null,
-      maxValue: null
-    },
-    // 字符串 - 包含子串（另一个示例）
-    {
-      id: ++ruleIdCounter.value,
-      keyName: 'address',
-      keyType: 'string',
-      constraintType: 'contains',
-      constraintValue: '北京',
-      minValue: null,
-      maxValue: null
     }
   ];
   
   requestForm.value.maskingRules = testRules;
   
   // 显示成功提示
-  $notify.success('测试请求已自动生成，包含所有类型的脱敏规则示例');
+  $notify.success('测试请求已自动生成，包含字符串和数值范围脱敏规则示例');
 };
 
 // 提交请求
@@ -612,7 +562,7 @@ const submitRequest = async () => {
 // 提交定制脱敏请求的API调用（简单的接口函数）
 const submitCustomMaskingRequest = async (requestData) => {
   // 这里是简单的接口函数，实际需要根据后端API实现
-  const response = await axios.post('/submitCustomMaskingRequest', requestData);
+  const response = await axios.post('/submitDataTradeOrder', requestData);
   return response.data;
 };
 

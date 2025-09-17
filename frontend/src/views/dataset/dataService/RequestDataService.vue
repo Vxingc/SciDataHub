@@ -675,9 +675,9 @@ const generateTestRequest = () => {
   
   // 填充基本信息
   requestForm.value.title = `${dataset.value.fullName || dataset.value.name} - 数据服务请求测试`;
-  requestForm.value.description = `这是一个针对数据集"${dataset.value.fullName || dataset.value.name}"的数据服务请求测试。该请求包含了查询条件和计算代码的完整示例，用于验证系统的数据服务能力。`;
+  requestForm.value.description = `这是一个针对数据集"${dataset.value.fullName || dataset.value.name}"的数据服务请求测试。包含字符串匹配和数值范围两种查询条件示例。`;
   
-  // 生成测试查询规则
+  // 生成简化的查询规则
   const testRules = [
     {
       id: ++ruleIdCounter.value,
@@ -696,15 +696,6 @@ const generateTestRequest = () => {
       value: '',
       minValue: 18,
       maxValue: 65
-    },
-    {
-      id: ++ruleIdCounter.value,
-      fieldName: 'email',
-      dataType: 'string',
-      operator: 'equals',
-      value: 'test@example.com',
-      minValue: null,
-      maxValue: null
     }
   ];
   
@@ -734,7 +725,7 @@ fn analyze_dataset() -> Value {
     serde_json::to_value(analysis).unwrap()
 }`;
   
-  $notify.success('已生成完整的数据服务请求测试，包含查询条件和计算代码示例');
+  $notify.success('已生成数据服务请求测试，包含字符串和数值范围查询条件示例');
 };
 
 // 提交请求
