@@ -7,6 +7,7 @@ import userRoutes from './database/users/userRoutes.mjs';
 import blockchainRoutes from './database/blockchains/blockchainsRoutes.mjs';
 import datasetsRoutes from './database/datasets/datasetsRoutes.mjs';
 import chaincodeRoutes from './services/chaincode/chaincodeRoutes.mjs';
+import orderRoutes from './database/orders/orderRoutes.mjs';
 import { initLedger } from './services/chaincode/chaincode.mjs';
 import logger from './utils/log.mjs';
 
@@ -19,6 +20,7 @@ app.use('/', userRoutes);
 app.use('/', blockchainRoutes);
 app.use('/', datasetsRoutes);
 app.use('/', chaincodeRoutes);
+app.use('/api', orderRoutes);
 
 await initLedger();
 
