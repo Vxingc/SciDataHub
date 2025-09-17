@@ -53,7 +53,7 @@
           </li>
           <!-- 修改数据交易订单icon为合适icon -->
           <li class="nav-item mx-2">
-            <RouterLink to="/" class="nav-link ps-2 d-flex cursor-pointer align-items-center"
+            <RouterLink to="/tradeOrders/Physics" class="nav-link ps-2 d-flex cursor-pointer align-items-center"
               :class="getTextColor()">
               <i class="material-icons opacity-9 me-2 text-xl" :class="getTextColor()">swap_horiz</i>
               数据交易订单
@@ -61,7 +61,7 @@
           </li>
 
           <li class="nav-item mx-2">
-            <RouterLink to="/" class="nav-link ps-2 d-flex cursor-pointer align-items-center"
+            <RouterLink to="/serviceOrders/Physics" class="nav-link ps-2 d-flex cursor-pointer align-items-center"
               :class="getTextColor()">
               <i class="material-icons opacity-9 me-2 text-xl" :class="getTextColor()">query_stats</i>
               数据服务订单

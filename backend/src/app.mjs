@@ -36,6 +36,8 @@ import { addDemoBlockchains } from './database/blockchains/blockchainsDemo.mjs';
 import { initUserTable, deleteUserTable } from './database/users/userTable.mjs';
 import { addDemoUser } from './database/users/userDemo.mjs';
 import { addDemoDatasets } from './database/datasets/datasetsDemo.mjs';
+import { initTradeOrderTable, deleteTradeOrderTable } from './database/orders/tradeOrdersTable.mjs';
+import { initServiceOrderTable, deleteServiceOrderTable } from './database/orders/serviceOrdersTable.mjs';
 
 logger.info("初始化后端数据库")
 
@@ -51,4 +53,17 @@ await addDemoBlockchains();
 
 // 初始化数据集表
 await addDemoDatasets();
+
+// 初始化订单表（为每个区块链创建订单表）
+const blockchains = ['Physics', 'Biology', 'Medicine', 'ArtificialIntelligence', 'CyberSecurity'];
+for (const blockchain of blockchains) {
+    // 删除旧的订单表
+    await deleteTradeOrderTable(blockchain);
+    await deleteServiceOrderTable(blockchain);
+    
+    // 创建新的订单表
+    await initTradeOrderTable(blockchain);
+    await initServiceOrderTable(blockchain);
+}
+
 logger.info("后端数据库初始化完成")

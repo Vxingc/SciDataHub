@@ -17,6 +17,9 @@ import DatasetView from "../views/dataset/DatasetView.vue";
 import DatasetEdit from "../views/dataset/DatasetEdit.vue";
 import RequestDataTrade from "../views/dataset/dataTrade/RequestDataTrade.vue";
 import RequestDataService from "../views/dataset/dataService/RequestDataService.vue";
+import TradeOrders from "../views/orders/TradeOrders.vue";
+import ServiceOrders from "../views/orders/ServiceOrders.vue";
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -70,6 +73,18 @@ const router = createRouter({
       path: "/dataset/requestDataService/:blockchainName/:name",
       name: "RequestDataService",
       component: RequestDataService,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/tradeOrders/:blockchainName",
+      name: "tradeOrders",
+      component: TradeOrders,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/serviceOrders/:blockchainName",
+      name: "serviceOrders",
+      component: ServiceOrders,
       meta: { requiresAuth: true },
     },
     {

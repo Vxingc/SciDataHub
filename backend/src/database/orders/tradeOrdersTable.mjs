@@ -1,11 +1,6 @@
 import { dbRun, dbGet, dbAll } from '../db.mjs';
 import logger from '../../utils/log.mjs';
 
-
-
-import { dbRun, dbGet, dbAll } from '../db.mjs';
-import logger from '../../utils/log.mjs';
-
 // 交易订单表初始化
 export async function initTradeOrderTable(blockchainName) {
 	try {
