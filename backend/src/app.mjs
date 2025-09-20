@@ -20,7 +20,7 @@ app.use('/', userRoutes);
 app.use('/', blockchainRoutes);
 app.use('/', datasetsRoutes);
 app.use('/', chaincodeRoutes);
-app.use('/api', orderRoutes);
+app.use('/', orderRoutes);
 
 await initLedger();
 

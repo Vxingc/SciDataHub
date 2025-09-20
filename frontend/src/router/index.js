@@ -19,6 +19,10 @@ import RequestDataTrade from "../views/dataset/dataTrade/RequestDataTrade.vue";
 import RequestDataService from "../views/dataset/dataService/RequestDataService.vue";
 import TradeOrders from "../views/orders/TradeOrders.vue";
 import ServiceOrders from "../views/orders/ServiceOrders.vue";
+import TradeOrderDetail from "../views/orders/TradeOrderDetail.vue";
+import ServiceOrderDetail from "../views/orders/ServiceOrderDetail.vue";
+import TradeOrderProcessingDetail from "../views/orders/TradeOrderProcessingDetail.vue";
+import ServiceOrderProcessingDetail from "../views/orders/ServiceOrderProcessingDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -85,6 +89,30 @@ const router = createRouter({
       path: "/serviceOrders/:blockchainName",
       name: "serviceOrders",
       component: ServiceOrders,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/tradeOrderDetail/:blockchainName/:orderId",
+      name: "tradeOrderDetail",
+      component: TradeOrderDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/serviceOrderDetail/:blockchainName/:orderId",
+      name: "serviceOrderDetail",
+      component: ServiceOrderDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/tradeOrderProcessingDetail/:blockchainName/:orderId",
+      name: "tradeOrderProcessingDetail",
+      component: TradeOrderProcessingDetail,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/serviceOrderProcessingDetail/:blockchainName/:orderId",
+      name: "serviceOrderProcessingDetail",
+      component: ServiceOrderProcessingDetail,
       meta: { requiresAuth: true },
     },
     {

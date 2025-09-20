@@ -50,6 +50,7 @@
                   <option value="pending">待处理</option>
                   <option value="processing">处理中</option>
                   <option value="completed">已完成</option>
+                  <option value="rejected">已拒绝</option>
                   <option value="cancelled">已取消</option>
                   <option value="failed">失败</option>
                 </select>
@@ -208,12 +209,12 @@
                       <div class="order-actions text-end">
                         <div class="btn-group-vertical w-100" role="group">
                           <!-- 查看详情按钮 -->
-                          <button 
-                            class="btn btn-outline-info btn-sm mb-2"
-                            @click="viewOrderDetails(order)"
+                          <router-link 
+                            :to="`/tradeOrderDetail/${order.blockchainName}/${order.id}`"
+                            class="btn btn-outline-info btn-sm mb-2 text-decoration-none"
                           >
                             <i class="fas fa-eye me-1"></i>查看详情
-                          </button>
+                          </router-link>
                           
                           <!-- 状态管理按钮（仅数据拥有者可见） -->
                           <div v-if="viewMode === 'received' && canManageOrder(order)" class="mb-2">
@@ -412,6 +413,19 @@ const filters = reactive({
   search: ''
 })
 
+// 获取状态优先级（数字越小优先级越高）
+const getStatusPriority = (status) => {
+  const priorityMap = {
+    'pending': 1,     // 待处理 - 最高优先级
+    'processing': 2,  // 处理中 - 第二优先级
+    'completed': 3,   // 已完成
+    'rejected': 4,    // 已拒绝
+    'cancelled': 5,   // 已取消
+    'failed': 6       // 失败
+  }
+  return priorityMap[status] || 7
+}
+
 // 计算属性
 const filteredOrders = computed(() => {
   let result = orders.value
@@ -430,6 +444,18 @@ const filteredOrders = computed(() => {
       (order.description && order.description.toLowerCase().includes(searchTerm))
     )
   }
+  
+  // 按状态优先级和创建时间排序
+  result.sort((a, b) => {
+    // 首先按状态优先级排序
+    const priorityDiff = getStatusPriority(a.status) - getStatusPriority(b.status)
+    if (priorityDiff !== 0) {
+      return priorityDiff
+    }
+    
+    // 状态相同时，按创建时间倒序排序（最新的在前）
+    return new Date(b.created_at) - new Date(a.created_at)
+  })
   
   return result
 })
@@ -457,44 +483,301 @@ const refreshOrders = () => {
   loadOrders()
 }
 
+// 生成模拟数据的辅助函数
+const generateMockTradeOrders = () => {
+  const mockOrders = []
+  
+  // 创建4个不同科研领域的订单示例
+  const allStatuses = ['pending', 'processing', 'completed', 'cancelled']
+  
+  // 定义四个科研领域的数据集示例
+  const researchDatasets = [
+    {
+      name: '高能物理实验数据集',
+      field: 'physics',
+      title: '粒子对撞实验脱敏数据请求',
+      description: '请求获取CERN大型强子对撞机实验的脱敏数据，用于暗物质研究。需要对实验参数、设备信息等敏感数据进行定制化脱敏处理，确保实验室机密信息安全的同时保持数据的科学价值。'
+    },
+    {
+      name: '临床试验患者数据集',
+      field: 'medicine',
+      title: '癌症治疗临床数据脱敏请求',
+      description: '申请获取肿瘤临床试验的脱敏患者数据，用于机器学习模型训练。需要严格保护患者隐私信息，包括个人身份、联系方式等，同时保留治疗效果和生物标志物数据的完整性。'
+    },
+    {
+      name: '网络安全日志数据集',
+      field: 'cybersecurity',
+      title: '网络攻击检测数据脱敏请求',
+      description: '请求获取企业网络安全事件的脱敏日志数据，用于威胁检测算法研究。需要对IP地址、用户名、系统路径等敏感信息进行脱敏，保护企业网络架构隐私的同时保持攻击模式特征。'
+    },
+    {
+      name: '基因组测序数据集',
+      field: 'biology',
+      title: '遗传疾病研究数据脱敏请求',
+      description: '申请获取人类基因组测序的脱敏数据，用于遗传疾病关联性分析。需要对个体身份信息进行严格脱敏，同时保留基因变异位点和表型数据，确保遗传隐私保护和科研数据可用性的平衡。'
+    }
+  ]
+  
+  // 生成4个订单，每个对应一个科研领域
+  for (let i = 0; i < 4; i++) {
+    const dataset = researchDatasets[i]
+    const status = allStatuses[i % allStatuses.length]
+    
+    const order = {
+      id: `trade_${(i + 1).toString().padStart(3, '0')}`,
+      title: dataset.title,
+      status: status,
+      datasetName: dataset.name,
+      requester: 'demoDataRequester',
+      datasetOwner: 'demoDataOwner',
+      blockchainName: route.params.blockchainName || 'Physics',
+      description: dataset.description,
+      created_at: new Date(Date.now() - (4 - i) * 12 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - (4 - i - 1) * 6 * 60 * 60 * 1000).toISOString(),
+      maskingRules: generateDomainSpecificMaskingRules(dataset.field)
+    }
+    
+    mockOrders.push(order)
+  }
+  
+  console.log('=== 模拟数据生成调试 ===')
+  console.log('生成的所有订单:', mockOrders.map(order => ({
+    id: order.id,
+    title: order.title,
+    field: order.datasetName,
+    rulesCount: order.maskingRules.length,
+    status: order.status
+  })))
+  console.log('=== 模拟数据生成结束 ===')
+  
+  return mockOrders
+}
+
+// 生成基于科研领域的脱敏规则
+const generateDomainSpecificMaskingRules = (field) => {
+  const rules = []
+  
+  switch (field) {
+    case 'physics':
+      // 物理学实验数据脱敏规则
+      rules.push(
+        {
+          keyName: 'experiment_location',
+          dataType: 'string',
+          constraintType: 'equals',
+          constraintValue: 'CERN-LHC'
+        },
+        {
+          keyName: 'detector_type',
+          dataType: 'string',
+          constraintType: 'contains',
+          constraintValue: 'ATLAS'
+        },
+        {
+          keyName: 'beam_energy',
+          dataType: 'number',
+          constraintType: 'range',
+          minValue: 6500,
+          maxValue: 7000
+        },
+        {
+          keyName: 'collision_frequency',
+          dataType: 'number',
+          constraintType: 'range',
+          minValue: 25,
+          maxValue: 40
+        }
+      )
+      break
+      
+    case 'medicine':
+      // 临床医学数据脱敏规则
+      rules.push(
+        {
+          keyName: 'patient_diagnosis',
+          dataType: 'string',
+          constraintType: 'contains',
+          constraintValue: '肺癌'
+        },
+        {
+          keyName: 'treatment_protocol',
+          dataType: 'string',
+          constraintType: 'equals',
+          constraintValue: 'FOLFOX'
+        },
+        {
+          keyName: 'patient_age',
+          dataType: 'number',
+          constraintType: 'range',
+          minValue: 45,
+          maxValue: 75
+        },
+        {
+          keyName: 'tumor_size_mm',
+          dataType: 'number',
+          constraintType: 'range',
+          minValue: 20,
+          maxValue: 80
+        },
+        {
+          keyName: 'hospital_department',
+          dataType: 'string',
+          constraintType: 'contains',
+          constraintValue: '肿瘤科'
+        }
+      )
+      break
+      
+    case 'cybersecurity':
+      // 网络空间安全数据脱敏规则
+      rules.push(
+        {
+          keyName: 'attack_type',
+          dataType: 'string',
+          constraintType: 'equals',
+          constraintValue: 'SQL_INJECTION'
+        },
+        {
+          keyName: 'source_country',
+          dataType: 'string',
+          constraintType: 'contains',
+          constraintValue: 'CN'
+        },
+        {
+          keyName: 'port_number',
+          dataType: 'number',
+          constraintType: 'range',
+          minValue: 80,
+          maxValue: 8080
+        },
+        {
+          keyName: 'payload_size_bytes',
+          dataType: 'number',
+          constraintType: 'range',
+          minValue: 1024,
+          maxValue: 65536
+        },
+        {
+          keyName: 'vulnerability_cve',
+          dataType: 'string',
+          constraintType: 'contains',
+          constraintValue: 'CVE-2023'
+        }
+      )
+      break
+      
+    case 'biology':
+      // 生物学基因数据脱敏规则
+      rules.push(
+        {
+          keyName: 'gene_symbol',
+          dataType: 'string',
+          constraintType: 'equals',
+          constraintValue: 'BRCA1'
+        },
+        {
+          keyName: 'chromosome',
+          dataType: 'string',
+          constraintType: 'contains',
+          constraintValue: 'chr17'
+        },
+        {
+          keyName: 'allele_frequency',
+          dataType: 'number',
+          constraintType: 'range',
+          minValue: 0.01,
+          maxValue: 0.05
+        },
+        {
+          keyName: 'read_depth',
+          dataType: 'number',
+          constraintType: 'range',
+          minValue: 30,
+          maxValue: 100
+        },
+        {
+          keyName: 'phenotype_category',
+          dataType: 'string',
+          constraintType: 'contains',
+          constraintValue: '遗传性乳腺癌'
+        },
+        {
+          keyName: 'population_group',
+          dataType: 'string',
+          constraintType: 'equals',
+          constraintValue: 'East_Asian'
+        }
+      )
+      break
+      
+    default:
+      // 默认通用规则
+      rules.push(
+        {
+          keyName: 'data_field',
+          dataType: 'string',
+          constraintType: 'contains',
+          constraintValue: '研究'
+        },
+        {
+          keyName: 'value_range',
+          dataType: 'number',
+          constraintType: 'range',
+          minValue: 0,
+          maxValue: 100
+        }
+      )
+  }
+  
+  return rules
+}
+
 const loadOrders = async () => {
   try {
     loading.value = true
     error.value = ''
     
-    // 检查是否有 blockchainName 参数
-    const blockchainName = route.params.blockchainName
-    if (!blockchainName) {
-      throw new Error('缺少区块链参数，请从正确的入口访问订单页面')
-    }
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 800))
     
-    let apiUrl = ''
+    // 生成模拟数据
+    const allMockData = generateMockTradeOrders()
     
+    console.log('=== 交易订单加载调试信息 ===')
+    console.log(`总共生成订单数量: ${allMockData.length}`)
+    console.log(`当前用户: ${authStore.username}`)
+    console.log(`视图模式: ${viewMode.value}`)
+    console.log('所有订单信息:', allMockData.map(order => ({
+      id: order.id,
+      requester: order.requester,
+      datasetOwner: order.datasetOwner,
+      status: order.status
+    })))
+    
+    // 根据视图模式筛选订单
+    let filteredData = []
     if (viewMode.value === 'my') {
-      // 获取我创建的订单
-      apiUrl = `/api/trade-orders/${blockchainName}/requester`
+      // 我的订单：显示当前用户作为请求者的订单
+      filteredData = allMockData.filter(order => order.requester === authStore.username)
+      console.log(`筛选条件: requester === '${authStore.username}'`)
     } else {
-      // 获取我收到的订单（作为数据拥有者）
-      apiUrl = `/api/trade-orders/${blockchainName}/owner/${authStore.username}`
+      // 收到的订单：显示当前用户作为数据拥有者的订单
+      filteredData = allMockData.filter(order => order.datasetOwner === authStore.username)
+      console.log(`筛选条件: datasetOwner === '${authStore.username}'`)
     }
     
-    const response = await fetch(apiUrl, {
-      headers: {
-        'Authorization': `Bearer ${authStore.token}`
-      }
-    })
+    console.log(`筛选后订单数量: ${filteredData.length}`)
+    console.log('筛选后的订单:', filteredData.map(order => ({
+      id: order.id,
+      requester: order.requester,
+      datasetOwner: order.datasetOwner,
+      status: order.status
+    })))
     
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
+    orders.value = filteredData
     
-    const data = await response.json()
-    
-    if (data.success) {
-      orders.value = data.data || []
-    } else {
-      throw new Error(data.message || '获取订单列表失败')
-    }
+    console.log(`最终加载 ${filteredData.length} 个${viewMode.value === 'my' ? '我的' : '收到的'}交易订单`)
+    console.log('=== 调试信息结束 ===')
   } catch (err) {
     console.error('Load orders error:', err)
     error.value = err.message || '获取订单列表失败'
@@ -512,38 +795,22 @@ const viewOrderDetails = (order) => {
 
 const updateOrderStatus = async (order, newStatus) => {
   try {
-    const blockchainName = route.params.blockchainName
-    if (!blockchainName) {
-      throw new Error('缺少区块链参数')
-    }
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 500))
     
-    const response = await fetch(`/api/trade-orders/${blockchainName}/${order.id}/status`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authStore.token}`
-      },
-      body: JSON.stringify({ status: newStatus })
-    })
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-    
-    const data = await response.json()
-    
-    if (data.success) {
-      // 更新本地订单状态
-      const orderIndex = orders.value.findIndex(o => o.id === order.id)
-      if (orderIndex !== -1) {
-        orders.value[orderIndex] = { ...orders.value[orderIndex], ...data.data }
+    // 更新本地订单状态
+    const orderIndex = orders.value.findIndex(o => o.id === order.id)
+    if (orderIndex !== -1) {
+      orders.value[orderIndex] = { 
+        ...orders.value[orderIndex], 
+        status: newStatus,
+        updated_at: new Date().toISOString()
       }
-      
-      // 显示成功消息
-      alert(`订单状态已更新为：${getStatusText(newStatus)}`)
-    } else {
-      throw new Error(data.message || '更新订单状态失败')
     }
+    
+    // 显示成功消息
+    alert(`订单状态已更新为：${getStatusText(newStatus)}`)
+    console.log(`交易订单 ${order.id} 状态已更新为: ${newStatus}`)
   } catch (err) {
     console.error('Update order status error:', err)
     alert(err.message || '更新订单状态失败')
@@ -556,31 +823,13 @@ const deleteOrder = async (order) => {
   }
   
   try {
-    const blockchainName = route.params.blockchainName
-    if (!blockchainName) {
-      throw new Error('缺少区块链参数')
-    }
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 300))
     
-    const response = await fetch(`/api/trade-orders/${blockchainName}/${order.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${authStore.token}`
-      }
-    })
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-    
-    const data = await response.json()
-    
-    if (data.success) {
-      // 从本地列表中移除订单
-      orders.value = orders.value.filter(o => o.id !== order.id)
-      alert('订单删除成功')
-    } else {
-      throw new Error(data.message || '删除订单失败')
-    }
+    // 从本地列表中移除订单
+    orders.value = orders.value.filter(o => o.id !== order.id)
+    alert('订单删除成功')
+    console.log(`交易订单 ${order.id} 已删除`)
   } catch (err) {
     console.error('Delete order error:', err)
     alert(err.message || '删除订单失败')
@@ -602,6 +851,7 @@ const getStatusText = (status) => {
     'pending': '待处理',
     'processing': '处理中',
     'completed': '已完成',
+    'rejected': '已拒绝',
     'cancelled': '已取消',
     'failed': '失败'
   }
@@ -613,6 +863,7 @@ const getStatusBadgeClass = (status) => {
     'pending': 'bg-warning',
     'processing': 'bg-info',
     'completed': 'bg-success',
+    'rejected': 'bg-danger',
     'cancelled': 'bg-secondary',
     'failed': 'bg-danger'
   }

@@ -542,6 +542,13 @@ const submitRequest = async () => {
     
     // 这里调用后端API
     const response = await submitCustomMaskingRequest(requestData);
+    const requestDataOnChain  = {
+      datasetHash: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3',
+      hashChainEnd: `a6aa9230c2cd2e18d1e76888313921f587f039381cd617fb9a388c984c5658cd`,
+      tokenUnit: 10,
+      buyer: authStore.username,
+      seller: dataset.value.owner
+    }
     
     if (response.success) {
       $notify.success('定制脱敏请求已提交成功');
@@ -549,7 +556,7 @@ const submitRequest = async () => {
       // 可以跳转到请求列表页面
       // router.push('/my-requests');
     } else {
-      $notify.error('请求提交失败：' + response.message);
+      $notify.error('后端请求提交失败：' + response.message);
     }
   } catch (err) {
     console.error('提交请求失败', err);
@@ -562,7 +569,12 @@ const submitRequest = async () => {
 // 提交定制脱敏请求的API调用（简单的接口函数）
 const submitCustomMaskingRequest = async (requestData) => {
   // 这里是简单的接口函数，实际需要根据后端API实现
-  const response = await axios.post('/submitDataTradeOrder', requestData);
+  const response = await axios.post(`/trade-orders`, requestData);
+  return response.data;
+};
+
+const submitCustomMaskingRequestOrderOnChain = async (requestData) => {
+  const response = await axios.post(`/bcCreateOrder`, requestData);
   return response.data;
 };
 

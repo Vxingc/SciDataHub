@@ -10,8 +10,10 @@ export async function bcCreateOrder(req, res) {
         const contract = await initializeContract();
         
         logger.info(`bcCreateOrder, datasetHash: ${datasetHash}, hashChainEnd: ${hashChainEnd}, tokenUnit: ${tokenUnit}, buyer: ${buyer}, seller: ${seller}`);
+        logger.info("before invoke chaincode");
         const resultBytes = await contract.submitTransaction('CreateOrder', datasetHash, hashChainEnd, tokenUnit, buyer, seller);
-        const resultJson = utf8Decoder.decode(resultBytes);
+        logger.info("after invoke chaincode");
+        
         
         logger.info('bcCreateOrder result: ', resultJson);
         res.json({ success: true, orderID: resultJson, message: '订单创建成功' });

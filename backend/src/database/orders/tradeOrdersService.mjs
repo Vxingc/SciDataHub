@@ -14,21 +14,15 @@ import logger from '../../utils/log.mjs';
 // 创建交易订单
 export async function handleAddTradeOrder(req, res) {
     try {
-        const { title, description, blockchainName, datasetName, datasetOwner, maskingRules } = req.body;
-        const requester = req.user?.username;
+        const { title, description, blockchainName, datasetName, datasetOwner, requester, maskingRules } = req.body;
+        logger.debug(`Add trade order: ${JSON.stringify(req.body)}`);
 
         // 参数验证
-        if (!title || !blockchainName || !datasetName || !datasetOwner || !maskingRules) {
+        if (!title || !blockchainName || !datasetName || !datasetOwner || !maskingRules || !requester) {
+            logger.debug(`add trade order failed, missing parameters: title, blockchainName, datasetName, datasetOwner, maskingRules, requester: ${JSON.stringify(req.body)}`);
             return res.status(400).json({
                 success: false,
                 message: '缺少必要参数：title, blockchainName, datasetName, datasetOwner, maskingRules'
-            });
-        }
-
-        if (!requester) {
-            return res.status(401).json({
-                success: false,
-                message: '用户未认证'
             });
         }
 

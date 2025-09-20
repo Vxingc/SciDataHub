@@ -51,7 +51,8 @@ export async function addTradeOrder(blockchainName, title, description, datasetN
 			(title, description, blockchainName, datasetName, datasetOwner, requester, maskingRules) 
 			VALUES (?, ?, ?, ?, ?, ?, ?)
 		`, [title, description, blockchainName, datasetName, datasetOwner, requester, maskingRulesJson]);
-		
+
+		logger.debug(`result: ${JSON.stringify(result)}`);
 		logger.debug(`create trade order for blockchain: ${blockchainName} success, order id: ${result.lastID}`);
 		return result.lastID;
 	} catch (err) {
@@ -112,10 +113,10 @@ export async function getTradeOrdersByDatasetOwner(blockchainName, owner) {
 			maskingRules: JSON.parse(order.maskingRules)
 		}));
 		
-		logger.debug(`get trade orders by dataset owner ${datasetOwner} for blockchain: ${blockchainName} success`);
+		logger.debug(`get trade orders by dataset owner ${owner} for blockchain: ${blockchainName} success`);
 		return ordersWithParsedRules;
 	} catch (err) {
-		logger.error(`get trade orders by dataset owner ${datasetOwner} for blockchain: ${blockchainName} failed: ${err}`);
+		logger.error(`get trade orders by dataset owner ${owner} for blockchain: ${blockchainName} failed: ${err}`);
 		throw err;
 	}
 }

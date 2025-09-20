@@ -50,6 +50,7 @@
                   <option value="pending">待处理</option>
                   <option value="processing">处理中</option>
                   <option value="completed">已完成</option>
+                  <option value="rejected">已拒绝</option>
                   <option value="cancelled">已取消</option>
                   <option value="failed">失败</option>
                 </select>
@@ -207,12 +208,12 @@
                       <div class="order-actions text-end">
                         <div class="btn-group-vertical w-100" role="group">
                           <!-- 查看详情按钮 -->
-                          <button 
-                            class="btn btn-outline-info btn-sm mb-2"
-                            @click="viewOrderDetails(order)"
+                          <router-link 
+                            :to="`/serviceOrderDetail/${order.blockchainName}/${order.id}`"
+                            class="btn btn-outline-info btn-sm mb-2 text-decoration-none"
                           >
                             <i class="fas fa-eye me-1"></i>查看详情
-                          </button>
+                          </router-link>
                           
                           <!-- 状态管理按钮（仅数据拥有者可见） -->
                           <div v-if="viewMode === 'received' && canManageOrder(order)" class="mb-2">
@@ -386,6 +387,19 @@ const filters = reactive({
   search: ''
 })
 
+// 获取状态优先级（数字越小优先级越高）
+const getStatusPriority = (status) => {
+  const priorityMap = {
+    'pending': 1,     // 待处理 - 最高优先级
+    'processing': 2,  // 处理中 - 第二优先级
+    'completed': 3,   // 已完成
+    'rejected': 4,    // 已拒绝
+    'cancelled': 5,   // 已取消
+    'failed': 6       // 失败
+  }
+  return priorityMap[status] || 7
+}
+
 // 计算属性
 const filteredOrders = computed(() => {
   let result = orders.value
@@ -409,6 +423,18 @@ const filteredOrders = computed(() => {
       (order.description && order.description.toLowerCase().includes(searchTerm))
     )
   }
+  
+  // 按状态优先级和创建时间排序
+  result.sort((a, b) => {
+    // 首先按状态优先级排序
+    const priorityDiff = getStatusPriority(a.status) - getStatusPriority(b.status)
+    if (priorityDiff !== 0) {
+      return priorityDiff
+    }
+    
+    // 状态相同时，按创建时间倒序排序（最新的在前）
+    return new Date(b.created_at) - new Date(a.created_at)
+  })
   
   return result
 })
@@ -437,44 +463,139 @@ const refreshOrders = () => {
   loadOrders()
 }
 
+// 生成模拟数据的辅助函数
+const generateMockOrders = () => {
+  const mockOrders = []
+  
+  // 创建4个不同科研领域的数据服务订单示例
+  const fixedStatuses = ['pending', 'processing', 'completed', 'failed']
+  
+  // 定义四个科研领域的数据服务示例
+  const researchServices = [
+    {
+      name: '高能物理实验数据集',
+      field: 'physics',
+      serviceType: 'analysis',
+      title: '粒子对撞数据统计分析服务',
+      description: '请求对CERN大型强子对撞机的粒子对撞数据进行统计分析。需要计算不变质量分布、动量谱分析和事件重建算法，用于新粒子发现研究。服务包括数据清洗、特征提取和高级统计分析。',
+      serviceConfig: {
+        processingType: '粒子物理统计分析',
+        outputFormat: 'ROOT/HDF5',
+        priority: 'high',
+        estimatedTime: '6-8小时'
+      }
+    },
+    {
+      name: '临床试验患者数据集',
+      field: 'medicine',
+      serviceType: 'processing',
+      title: '临床数据预处理与特征工程服务',
+      description: '对肿瘤临床试验数据进行标准化预处理和特征工程。包括缺失值处理、异常值检测、数据标准化和生物标志物特征提取。为机器学习模型训练提供高质量的数据集。',
+      serviceConfig: {
+        processingType: '临床数据预处理',
+        outputFormat: 'CSV/Parquet',
+        priority: 'high',
+        estimatedTime: '4-6小时'
+      }
+    },
+    {
+      name: '网络安全日志数据集',
+      field: 'cybersecurity',
+      serviceType: 'verification',
+      title: '网络安全事件验证与分类服务',
+      description: '对企业网络安全日志进行威胁事件验证和自动分类。包括攻击模式识别、异常流量检测和威胁情报关联分析。为安全运营中心提供实时威胁检测能力。',
+      serviceConfig: {
+        processingType: '安全事件验证',
+        outputFormat: 'JSON/SIEM',
+        priority: 'urgent',
+        estimatedTime: '2-4小时'
+      }
+    },
+    {
+      name: '基因组测序数据集',
+      field: 'biology',
+      serviceType: 'custom',
+      title: '基因组变异注释与功能分析服务',
+      description: '对人类基因组测序数据进行变异注释和功能影响分析。包括变异位点识别、基因功能注释、病理性预测和药物敏感性分析。为精准医学和个体化治疗提供科学依据。',
+      serviceConfig: {
+        processingType: '基因组注释分析',
+        outputFormat: 'VCF/GFF3',
+        priority: 'normal',
+        estimatedTime: '8-12小时'
+      }
+    }
+  ]
+  
+  // 生成4个订单，每个对应一个科研领域
+  for (let i = 0; i < 4; i++) {
+    const service = researchServices[i]
+    const status = fixedStatuses[i]
+    
+    mockOrders.push({
+      id: `service_${(i + 1).toString().padStart(3, '0')}`,
+      title: service.title,
+      description: service.description,
+      status: status,
+      serviceType: service.serviceType,
+      datasetName: service.name,
+      requester: 'demoDataRequester',
+      datasetOwner: 'demoDataOwner',
+      blockchainName: route.params.blockchainName || 'Physics',
+      serviceConfig: service.serviceConfig,
+      created_at: new Date(Date.now() - (4 - i) * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - (4 - i - 1) * 12 * 60 * 60 * 1000).toISOString()
+    })
+  }
+
+  return mockOrders
+}
+
 const loadOrders = async () => {
   try {
     loading.value = true
     error.value = ''
     
-    // 检查是否有 blockchainName 参数
-    const blockchainName = route.params.blockchainName
-    if (!blockchainName) {
-      throw new Error('缺少区块链参数，请从正确的入口访问订单页面')
-    }
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 800))
     
-    let apiUrl = ''
+    // 生成模拟数据
+    const allMockData = generateMockOrders()
     
+    console.log('=== 服务订单加载调试信息 ===')
+    console.log(`总共生成订单数量: ${allMockData.length}`)
+    console.log(`当前用户: ${authStore.username}`)
+    console.log(`视图模式: ${viewMode.value}`)
+    console.log('所有订单信息:', allMockData.map(order => ({
+      id: order.id,
+      requester: order.requester,
+      datasetOwner: order.datasetOwner,
+      status: order.status
+    })))
+    
+    // 根据视图模式筛选订单
+    let filteredData = []
     if (viewMode.value === 'my') {
-      // 获取我创建的订单
-      apiUrl = `/api/service-orders/${blockchainName}/requester`
+      // 我的订单：显示当前用户作为请求者的订单
+      filteredData = allMockData.filter(order => order.requester === authStore.username)
+      console.log(`筛选条件: requester === '${authStore.username}'`)
     } else {
-      // 获取我收到的订单（作为数据拥有者）
-      apiUrl = `/api/service-orders/${blockchainName}/owner/${authStore.username}`
+      // 收到的订单：显示当前用户作为数据拥有者的订单
+      filteredData = allMockData.filter(order => order.datasetOwner === authStore.username)
+      console.log(`筛选条件: datasetOwner === '${authStore.username}'`)
     }
     
-    const response = await fetch(apiUrl, {
-      headers: {
-        'Authorization': `Bearer ${authStore.token}`
-      }
-    })
+    console.log(`筛选后订单数量: ${filteredData.length}`)
+    console.log('筛选后的订单:', filteredData.map(order => ({
+      id: order.id,
+      requester: order.requester,
+      datasetOwner: order.datasetOwner,
+      status: order.status
+    })))
     
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
+    orders.value = filteredData
     
-    const data = await response.json()
-    
-    if (data.success) {
-      orders.value = data.data || []
-    } else {
-      throw new Error(data.message || '获取订单列表失败')
-    }
+    console.log(`最终加载 ${filteredData.length} 个${viewMode.value === 'my' ? '我的' : '收到的'}服务订单`)
+    console.log('=== 调试信息结束 ===')
   } catch (err) {
     console.error('Load orders error:', err)
     error.value = err.message || '获取订单列表失败'
@@ -492,38 +613,22 @@ const viewOrderDetails = (order) => {
 
 const updateOrderStatus = async (order, newStatus) => {
   try {
-    const blockchainName = route.params.blockchainName
-    if (!blockchainName) {
-      throw new Error('缺少区块链参数')
-    }
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 500))
     
-    const response = await fetch(`/api/service-orders/${blockchainName}/${order.id}/status`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authStore.token}`
-      },
-      body: JSON.stringify({ status: newStatus })
-    })
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-    
-    const data = await response.json()
-    
-    if (data.success) {
-      // 更新本地订单状态
-      const orderIndex = orders.value.findIndex(o => o.id === order.id)
-      if (orderIndex !== -1) {
-        orders.value[orderIndex] = { ...orders.value[orderIndex], ...data.data }
+    // 更新本地订单状态
+    const orderIndex = orders.value.findIndex(o => o.id === order.id)
+    if (orderIndex !== -1) {
+      orders.value[orderIndex] = { 
+        ...orders.value[orderIndex], 
+        status: newStatus,
+        updated_at: new Date().toISOString()
       }
-      
-      // 显示成功消息
-      alert(`订单状态已更新为：${getStatusText(newStatus)}`)
-    } else {
-      throw new Error(data.message || '更新订单状态失败')
     }
+    
+    // 显示成功消息
+    alert(`订单状态已更新为：${getStatusText(newStatus)}`)
+    console.log(`订单 ${order.id} 状态已更新为: ${newStatus}`)
   } catch (err) {
     console.error('Update order status error:', err)
     alert(err.message || '更新订单状态失败')
@@ -536,31 +641,13 @@ const deleteOrder = async (order) => {
   }
   
   try {
-    const blockchainName = route.params.blockchainName
-    if (!blockchainName) {
-      throw new Error('缺少区块链参数')
-    }
+    // 模拟网络延迟
+    await new Promise(resolve => setTimeout(resolve, 300))
     
-    const response = await fetch(`/api/service-orders/${blockchainName}/${order.id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${authStore.token}`
-      }
-    })
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
-    }
-    
-    const data = await response.json()
-    
-    if (data.success) {
-      // 从本地列表中移除订单
-      orders.value = orders.value.filter(o => o.id !== order.id)
-      alert('订单删除成功')
-    } else {
-      throw new Error(data.message || '删除订单失败')
-    }
+    // 从本地列表中移除订单
+    orders.value = orders.value.filter(o => o.id !== order.id)
+    alert('订单删除成功')
+    console.log(`订单 ${order.id} 已删除`)
   } catch (err) {
     console.error('Delete order error:', err)
     alert(err.message || '删除订单失败')
@@ -582,6 +669,7 @@ const getStatusText = (status) => {
     'pending': '待处理',
     'processing': '处理中',
     'completed': '已完成',
+    'rejected': '已拒绝',
     'cancelled': '已取消',
     'failed': '失败'
   }
@@ -593,6 +681,7 @@ const getStatusBadgeClass = (status) => {
     'pending': 'bg-warning',
     'processing': 'bg-info',
     'completed': 'bg-success',
+    'rejected': 'bg-danger',
     'cancelled': 'bg-secondary',
     'failed': 'bg-danger'
   }
