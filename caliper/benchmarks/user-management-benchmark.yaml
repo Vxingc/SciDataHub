@@ -1,0 +1,103 @@
+test:
+  name: SciDataHub用户管理性能测试
+  description: 测试用户管理相关函数的性能表现
+  workers:
+    type: local
+    number: 3
+  rounds:
+    - label: 用户创建性能测试
+      description: 测试AddUser函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/user-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: addUser
+          preCreateUsers: 50
+    
+    - label: 用户查询性能测试
+      description: 测试GetUser函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/user-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: getUser
+          preCreateUsers: 100
+    
+    - label: 代币余额查询性能测试
+      description: 测试GetTokenBalance函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/user-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: getTokenBalance
+          preCreateUsers: 100
+    
+    - label: 代币余额设置性能测试
+      description: 测试SetTokenBalance函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/user-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: setTokenBalance
+          preCreateUsers: 100
+    
+    - label: 锁定代币转移性能测试
+      description: 测试TransferLockedTokenBalance函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/user-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: transferLockedTokenBalance
+          preCreateUsers: 100
+    
+    - label: 混合用户操作性能测试
+      description: 测试混合用户操作的综合性能
+      txDuration: 60
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/user-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: mixed
+          preCreateUsers: 100
+
+monitors:
+  resource:
+    - module: docker
+      options:
+        interval: 5
+        containers:
+          - all
+  prometheus:
+    - module: prometheus-push
+      options:
+        url: "http://localhost:9091"
+        interval: 5

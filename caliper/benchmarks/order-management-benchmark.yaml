@@ -1,0 +1,125 @@
+test:
+  name: SciDataHub订单管理性能测试
+  description: 测试订单管理相关函数的性能表现
+  workers:
+    type: local
+    number: 4
+  rounds:
+    - label: 订单创建性能测试
+      description: 测试CreateOrder函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 20
+      workload:
+        module: workload/order-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: createOrder
+          preCreateDatasets: 50
+          preCreateOrders: 20
+    
+    - label: 订单查询性能测试
+      description: 测试GetOrder函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 50
+      workload:
+        module: workload/order-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: getOrder
+          preCreateDatasets: 50
+          preCreateOrders: 100
+    
+    - label: 订单状态更新性能测试
+      description: 测试UpdateOrderStatus函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 30
+      workload:
+        module: workload/order-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: updateOrderStatus
+          preCreateDatasets: 50
+          preCreateOrders: 100
+    
+    - label: 订单完成交易性能测试
+      description: 测试CompleteOrder函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 15
+      workload:
+        module: workload/order-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: completeOrder
+          preCreateDatasets: 50
+          preCreateOrders: 100
+    
+    - label: 获取所有订单性能测试
+      description: 测试GetAllOrders函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 8
+      workload:
+        module: workload/order-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: getAllOrders
+          preCreateDatasets: 50
+          preCreateOrders: 200
+    
+    - label: 混合订单操作性能测试
+      description: 测试混合订单操作的综合性能
+      txDuration: 60
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workload/order-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: mixed
+          preCreateDatasets: 100
+          preCreateOrders: 150
+    
+    - label: 订单生命周期性能测试
+      description: 测试完整订单生命周期的性能
+      txDuration: 45
+      rateControl:
+        type: linear-rate
+        opts:
+          startingTps: 5
+          finishingTps: 20
+      workload:
+        module: workload/order-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: orderLifecycle
+          preCreateDatasets: 100
+          preCreateOrders: 50
+
+monitors:
+  resource:
+    - module: docker
+      options:
+        interval: 5
+        containers:
+          - all
+  prometheus:
+    - module: prometheus-push
+      options:
+        url: "http://localhost:9091"
+        interval: 5

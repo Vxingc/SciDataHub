@@ -1,0 +1,153 @@
+test:
+  name: SciDataHub综合性能基准测试
+  description: 全面测试SciDataHub智能合约的综合性能表现
+  workers:
+    type: local
+    number: 5
+  rounds:
+    - label: 系统初始化性能测试
+      description: 测试系统初始化和基础数据创建的性能
+      txDuration: 60
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 15
+      workload:
+        module: workload/user-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: mixed
+          preCreateUsers: 50
+    
+    - label: 轻负载综合测试
+      description: 模拟轻负载下的综合操作性能
+      txDuration: 120
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 20
+      workload:
+        module: workload/comprehensive-test.js
+        arguments:
+          contractId: scidatahub
+          testScenario: light
+          userCount: 20
+          datasetCount: 50
+          orderCount: 30
+    
+    - label: 中等负载综合测试
+      description: 模拟中等负载下的综合操作性能
+      txDuration: 120
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 40
+      workload:
+        module: workload/comprehensive-test.js
+        arguments:
+          contractId: scidatahub
+          testScenario: medium
+          userCount: 50
+          datasetCount: 150
+          orderCount: 100
+    
+    - label: 高负载综合测试
+      description: 模拟高负载下的综合操作性能
+      txDuration: 120
+      rateControl:
+        type: linear-rate
+        opts:
+          startingTps: 30
+          finishingTps: 80
+      workload:
+        module: workload/comprehensive-test.js
+        arguments:
+          contractId: scidatahub
+          testScenario: heavy
+          userCount: 100
+          datasetCount: 300
+          orderCount: 200
+    
+    - label: 查询密集型测试
+      description: 测试查询密集型场景的性能
+      txDuration: 90
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 100
+      workload:
+        module: workload/comprehensive-test.js
+        arguments:
+          contractId: scidatahub
+          testScenario: query_intensive
+          userCount: 100
+          datasetCount: 500
+          orderCount: 300
+    
+    - label: 写入密集型测试
+      description: 测试写入密集型场景的性能
+      txDuration: 90
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: workload/comprehensive-test.js
+        arguments:
+          contractId: scidatahub
+          testScenario: write_intensive
+          userCount: 50
+          datasetCount: 200
+          orderCount: 150
+    
+    - label: 峰值负载压力测试
+      description: 测试系统在峰值负载下的性能极限
+      txDuration: 180
+      rateControl:
+        type: composite-rate
+        opts:
+          - startTime: 0
+            duration: 60
+            type: fixed-rate
+            opts:
+              tps: 50
+          - startTime: 60
+            duration: 60
+            type: linear-rate
+            opts:
+              startingTps: 50
+              finishingTps: 120
+          - startTime: 120
+            duration: 60
+            type: fixed-rate
+            opts:
+              tps: 120
+      workload:
+        module: workload/comprehensive-test.js
+        arguments:
+          contractId: scidatahub
+          testScenario: peak_load
+          userCount: 200
+          datasetCount: 1000
+          orderCount: 500
+
+monitors:
+  resource:
+    - module: docker
+      options:
+        interval: 3
+        containers:
+          - all
+  prometheus:
+    - module: prometheus-push
+      options:
+        url: "http://localhost:9091"
+        interval: 3
+  process:
+    - module: process
+      options:
+        interval: 3
+        processes:
+          - command: peer
+          - command: orderer
+          - command: ca

@@ -1,0 +1,105 @@
+test:
+  name: SciDataHub数据集管理性能测试
+  description: 测试数据集管理相关函数的性能表现
+  workers:
+    type: local
+    number: 3
+  rounds:
+    - label: 数据集创建性能测试
+      description: 测试AddDataset函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/dataset-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: addDataset
+          preCreateDatasets: 50
+    
+    - label: 数据集查询性能测试
+      description: 测试GetDataset函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/dataset-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: getDataset
+          preCreateDatasets: 200
+    
+    - label: 数据集所有者查询性能测试
+      description: 测试GetDatasetOwner函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/dataset-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: getDatasetOwner
+          preCreateDatasets: 200
+    
+    - label: 获取所有数据集性能测试
+      description: 测试GetAllDatasets函数的性能
+      txDuration: 30
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/dataset-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: getAllDatasets
+          preCreateDatasets: 500
+    
+    - label: 混合数据集操作性能测试
+      description: 测试混合数据集操作的综合性能
+      txDuration: 60
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 1000
+      workload:
+        module: workload/dataset-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: mixed
+          preCreateDatasets: 300
+    
+    - label: 数据集批量创建压力测试
+      description: 测试批量创建数据集的性能极限
+      txDuration: 45
+      rateControl:
+        type: linear-rate
+        opts:
+          startingTps: 10
+          finishingTps: 50
+      workload:
+        module: workload/dataset-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: addDataset
+          preCreateDatasets: 100
+          batchSize: 10
+
+monitors:
+  resource:
+    - module: docker
+      options:
+        interval: 5
+        containers:
+          - all
+  prometheus:
+    - module: prometheus-push
+      options:
+        url: "http://localhost:9091"
+        interval: 5

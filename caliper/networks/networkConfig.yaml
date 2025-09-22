@@ -9,7 +9,7 @@ channels:
   - channelName: mychannel
     # the chaincodeIDs of all the fabric chaincodes in caliper-benchmarks
     contracts:
-    - id: datatrading
+    - id: scidatahub
 
 organizations:
   - mspid: Org1MSP
@@ -18,10 +18,10 @@ organizations:
       certificates:
       - name: 'Admin@org1.example.com'
         clientPrivateKey:
-          path: '../blockchain/network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/priv_sk'
+          path: '../blockchain/test-network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/e4898131f198fc92612cd4395627504aaf25f749dba0e53586045dd285b8adfd_sk'
         clientSignedCert:
-          path: '../blockchain/network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'
+          path: '../blockchain/test-network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'
     connectionProfile:
-      path: '../blockchain/network/organizations/peerOrganizations/org1.example.com/connection-org1.yaml'
+      path: '../blockchain/test-network/organizations/peerOrganizations/org1.example.com/connection-org1.yaml'
       discover: true
 

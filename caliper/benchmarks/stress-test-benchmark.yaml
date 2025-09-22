@@ -1,0 +1,170 @@
+test:
+  name: SciDataHub压力测试基准
+  description: 测试智能合约在极限负载下的性能表现和稳定性
+  workers:
+    type: local
+    number: 8
+  rounds:
+    - label: 并发用户创建压力测试
+      description: 测试大量并发用户创建的性能极限
+      txDuration: 60
+      rateControl:
+        type: linear-rate
+        opts:
+          startingTps: 20
+          finishingTps: 100
+      workload:
+        module: workload/user-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: addUser
+          preCreateUsers: 0
+    
+    - label: 数据集批量创建压力测试
+      description: 测试大量数据集创建的性能和存储极限
+      txDuration: 90
+      rateControl:
+        type: composite-rate
+        opts:
+          - startTime: 0
+            duration: 30
+            type: fixed-rate
+            opts:
+              tps: 30
+          - startTime: 30
+            duration: 30
+            type: linear-rate
+            opts:
+              startingTps: 30
+              finishingTps: 80
+          - startTime: 60
+            duration: 30
+            type: fixed-rate
+            opts:
+              tps: 80
+      workload:
+        module: workload/dataset-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: addDataset
+          preCreateDatasets: 100
+    
+    - label: 订单处理压力测试
+      description: 测试大量订单创建和处理的性能极限
+      txDuration: 120
+      rateControl:
+        type: linear-rate
+        opts:
+          startingTps: 15
+          finishingTps: 60
+      workload:
+        module: workload/order-management-test.js
+        arguments:
+          contractId: scidatahub
+          testType: mixed
+          preCreateDatasets: 200
+          preCreateOrders: 100
+    
+    - label: 查询性能极限测试
+      description: 测试高并发查询操作的性能极限
+      txDuration: 90
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 200
+      workload:
+        module: workload/comprehensive-test.js
+        arguments:
+          contractId: scidatahub
+          testScenario: query_intensive
+          userCount: 500
+          datasetCount: 1000
+          orderCount: 500
+    
+    - label: 混合操作极限压力测试
+      description: 测试混合读写操作在极限负载下的性能
+      txDuration: 180
+      rateControl:
+        type: composite-rate
+        opts:
+          - startTime: 0
+            duration: 60
+            type: linear-rate
+            opts:
+              startingTps: 30
+              finishingTps: 80
+          - startTime: 60
+            duration: 60
+            type: fixed-rate
+            opts:
+              tps: 80
+          - startTime: 120
+            duration: 60
+            type: linear-rate
+            opts:
+              startingTps: 80
+              finishingTps: 120
+      workload:
+        module: workload/comprehensive-test.js
+        arguments:
+          contractId: scidatahub
+          testScenario: peak_load
+          userCount: 300
+          datasetCount: 1500
+          orderCount: 800
+    
+    - label: 系统恢复能力测试
+      description: 测试系统在高负载后的恢复能力
+      txDuration: 120
+      rateControl:
+        type: composite-rate
+        opts:
+          - startTime: 0
+            duration: 30
+            type: fixed-rate
+            opts:
+              tps: 100
+          - startTime: 30
+            duration: 30
+            type: linear-rate
+            opts:
+              startingTps: 100
+              finishingTps: 20
+          - startTime: 60
+            duration: 60
+            type: fixed-rate
+            opts:
+              tps: 20
+      workload:
+        module: workload/comprehensive-test.js
+        arguments:
+          contractId: scidatahub
+          testScenario: medium
+          userCount: 200
+          datasetCount: 800
+          orderCount: 400
+
+monitors:
+  resource:
+    - module: docker
+      options:
+        interval: 2
+        containers:
+          - all
+  prometheus:
+    - module: prometheus-push
+      options:
+        url: "http://localhost:9091"
+        interval: 2
+  process:
+    - module: process
+      options:
+        interval: 2
+        processes:
+          - command: peer
+          - command: orderer
+          - command: ca
+  network:
+    - module: network
+      options:
+        interval: 2
