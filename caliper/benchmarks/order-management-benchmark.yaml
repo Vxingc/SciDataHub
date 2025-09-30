@@ -11,7 +11,7 @@ test:
       rateControl:
         type: fixed-rate
         opts:
-          tps: 20
+          tps: 1000
       workload:
         module: workload/order-management-test.js
         arguments:
@@ -26,7 +26,7 @@ test:
       rateControl:
         type: fixed-rate
         opts:
-          tps: 50
+          tps: 1000
       workload:
         module: workload/order-management-test.js
         arguments:
@@ -41,7 +41,7 @@ test:
       rateControl:
         type: fixed-rate
         opts:
-          tps: 30
+          tps: 1000
       workload:
         module: workload/order-management-test.js
         arguments:
@@ -56,7 +56,7 @@ test:
       rateControl:
         type: fixed-rate
         opts:
-          tps: 15
+          tps: 1000
       workload:
         module: workload/order-management-test.js
         arguments:
@@ -71,7 +71,7 @@ test:
       rateControl:
         type: fixed-rate
         opts:
-          tps: 8
+          tps: 1000
       workload:
         module: workload/order-management-test.js
         arguments:
@@ -86,7 +86,7 @@ test:
       rateControl:
         type: fixed-rate
         opts:
-          tps: 25
+          tps: 1000
       workload:
         module: workload/order-management-test.js
         arguments:
@@ -94,6 +94,7 @@ test:
           testType: mixed
           preCreateDatasets: 100
           preCreateOrders: 150
+    
     
     - label: 订单生命周期性能测试
       description: 测试完整订单生命周期的性能
