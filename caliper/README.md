@@ -77,20 +77,34 @@ caliper/
 npm install
 ```
 
-### 2. 运行单项测试
+### 2. 初始化合约（必须先执行）
+
+在运行任何性能测试之前，必须先初始化智能合约：
 
 ```bash
-# 用户管理功能测试
+# 初始化合约和基础数据
+npx caliper launch manager --caliper-workspace ./ --caliper-benchconfig benchmarks/init-contract-benchmark.yaml --caliper-networkconfig networks/networkConfig.yaml
+```
+
+**重要说明**：
+- ✅ 只需要运行一次初始化
+- ✅ 大大减少后续测试的启动时间
+- ✅ 避免多个worker重复初始化导致的冲突
+
+### 3. 运行单项功能测试
+
+```bash
+# 测试用户管理功能
 npx caliper launch manager --caliper-workspace ./ --caliper-benchconfig benchmarks/user-management-benchmark.yaml --caliper-networkconfig networks/networkConfig.yaml
 
-# 数据集管理功能测试
+# 测试数据集管理功能  
 npx caliper launch manager --caliper-workspace ./ --caliper-benchconfig benchmarks/dataset-management-benchmark.yaml --caliper-networkconfig networks/networkConfig.yaml
 
-# 订单管理功能测试
+# 测试订单管理功能
 npx caliper launch manager --caliper-workspace ./ --caliper-benchconfig benchmarks/order-management-benchmark.yaml --caliper-networkconfig networks/networkConfig.yaml
 ```
 
-### 3. 运行综合测试
+### 4. 运行综合测试
 
 ```bash
 # 综合性能基准测试

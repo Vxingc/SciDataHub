@@ -21,6 +21,26 @@ class OrderManagementWorkload extends WorkloadModuleBase {
         
         console.log(`Worker ${this.workerIndex}: 初始化订单管理性能测试`);
         
+        // 只有第一个worker负责初始化合约和创建基础数据
+        if (this.workerIndex === 0) {
+            console.log(`Worker ${this.workerIndex}: 作为主worker，开始初始化合约...`);
+            await this.initializeContract();
+        } else {
+            // 其他worker等待主worker完成初始化
+            console.log(`Worker ${this.workerIndex}: 等待主worker完成合约初始化...`);
+            await this.waitForInitialization();
+        }
+        
+        // 每个worker创建自己的测试数据（避免冲突）
+        await this.createWorkerSpecificData();
+        
+        console.log(`Worker ${this.workerIndex}: 初始化完成`);
+    }
+    
+    /**
+     * 初始化合约（仅由worker 0执行）
+     */
+    async initializeContract() {
         // 初始化账本
         const initLedgerRequest = {
             contractId: this.roundArguments.contractId,
@@ -43,7 +63,7 @@ class OrderManagementWorkload extends WorkloadModuleBase {
                 contractId: this.roundArguments.contractId,
                 contractFunction: 'AddUser',
                 invokerIdentity: 'Admin@org1.example.com',
-                contractArguments: [username, '10000'], // 给足够的代币余额
+                contractArguments: [username, '10000'],
                 readOnly: false
             };
             
@@ -54,8 +74,41 @@ class OrderManagementWorkload extends WorkloadModuleBase {
             }
         }
         
-        // 预创建一些测试数据集
-        const preCreateDatasets = this.roundArguments.preCreateDatasets || 10;
+        // 为测试用户转移代币到锁定余额
+        for (const username of this.testUsers) {
+            const request = {
+                contractId: this.roundArguments.contractId,
+                contractFunction: 'TransferLockedTokenBalance',
+                invokerIdentity: 'Admin@org1.example.com',
+                contractArguments: [username, '5000'],
+                readOnly: false
+            };
+            
+            try {
+                await this.sutAdapter.sendRequests(request);
+            } catch (error) {
+                console.error(`Worker ${this.workerIndex}: 转移锁定代币给 ${username} 失败:`, error);
+            }
+        }
+        
+        console.log(`Worker ${this.workerIndex}: 合约初始化完成`);
+    }
+    
+    /**
+     * 等待合约初始化完成（worker 1-3执行）
+     */
+    async waitForInitialization() {
+        // 简单的等待策略：等待5秒让主worker完成初始化
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        console.log(`Worker ${this.workerIndex}: 等待完成，开始创建worker专用数据`);
+    }
+    
+    /**
+     * 创建worker专用的测试数据（每个worker执行）
+     */
+    async createWorkerSpecificData() {
+        // 每个worker创建自己的数据集（避免冲突）
+        const preCreateDatasets = Math.floor((this.roundArguments.preCreateDatasets || 10) / 4); // 平均分配
         const sellers = this.testUsers.filter(user => user.includes('seller'));
         
         for (let i = 0; i < preCreateDatasets; i++) {
@@ -78,25 +131,8 @@ class OrderManagementWorkload extends WorkloadModuleBase {
             }
         }
         
-        // 为测试用户转移一些代币到锁定余额
-        for (const username of this.testUsers) {
-            const request = {
-                contractId: this.roundArguments.contractId,
-                contractFunction: 'TransferLockedTokenBalance',
-                invokerIdentity: 'Admin@org1.example.com',
-                contractArguments: [username, '5000'],
-                readOnly: false
-            };
-            
-            try {
-                await this.sutAdapter.sendRequests(request);
-            } catch (error) {
-                console.error(`Worker ${this.workerIndex}: 转移锁定代币给 ${username} 失败:`, error);
-            }
-        }
-        
-        // 预创建一些测试订单
-        const preCreateOrders = this.roundArguments.preCreateOrders || 5;
+        // 每个worker创建自己的订单
+        const preCreateOrders = Math.floor((this.roundArguments.preCreateOrders || 5) / 4);
         for (let i = 0; i < preCreateOrders; i++) {
             try {
                 const orderID = await this.createTestOrder();
@@ -108,7 +144,7 @@ class OrderManagementWorkload extends WorkloadModuleBase {
             }
         }
         
-        console.log(`Worker ${this.workerIndex}: 预创建 ${this.preCreatedDatasets.length} 个数据集和 ${this.preCreatedOrders.length} 个订单完成`);
+        console.log(`Worker ${this.workerIndex}: 创建 ${this.preCreatedDatasets.length} 个数据集和 ${this.preCreatedOrders.length} 个订单`);
     }
 
     /**

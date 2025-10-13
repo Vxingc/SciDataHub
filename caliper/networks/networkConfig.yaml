@@ -18,7 +18,7 @@ organizations:
       certificates:
       - name: 'Admin@org1.example.com'
         clientPrivateKey:
-          path: '../blockchain/test-network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/e4898131f198fc92612cd4395627504aaf25f749dba0e53586045dd285b8adfd_sk'
+          path: '../blockchain/test-network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/412c185f72ad4518684dad17fbcc90eec6448dd7b3501380e4e902a44104b313_sk'
         clientSignedCert:
           path: '../blockchain/test-network/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem'
     connectionProfile:

@@ -18,20 +18,20 @@ class UserManagementWorkload extends WorkloadModuleBase {
         console.log(`Worker ${this.workerIndex}: 初始化用户管理性能测试`);
         
         // 初始化账本
-        const initLedgerRequest = {
-            contractId: this.roundArguments.contractId,
-            contractFunction: 'InitLedger',
-            invokerIdentity: 'Admin@org1.example.com',
-            contractArguments: [],
-            readOnly: false
-        };
+        // const initLedgerRequest = {
+        //     contractId: this.roundArguments.contractId,
+        //     contractFunction: 'InitLedger',
+        //     invokerIdentity: 'Admin@org1.example.com',
+        //     contractArguments: [],
+        //     readOnly: false
+        // };
         
-        try {
-            await this.sutAdapter.sendRequests(initLedgerRequest);
-            console.log(`Worker ${this.workerIndex}: 账本初始化完成`);
-        } catch (error) {
-            console.error(`Worker ${this.workerIndex}: 账本初始化失败:`, error);
-        }
+        // try {
+        //     await this.sutAdapter.sendRequests(initLedgerRequest);
+        //     console.log(`Worker ${this.workerIndex}: 账本初始化完成`);
+        // } catch (error) {
+        //     console.error(`Worker ${this.workerIndex}: 账本初始化失败:`, error);
+        // }
         
         // 预创建一些测试用户用于查询测试
         const preCreateUsers = this.roundArguments.preCreateUsers || 10;
@@ -43,7 +43,7 @@ class UserManagementWorkload extends WorkloadModuleBase {
                 contractId: this.roundArguments.contractId,
                 contractFunction: 'AddUser',
                 invokerIdentity: 'Admin@org1.example.com',
-                contractArguments: [username, initialBalance.toString()],
+                contractArguments: [username, initialBalance],
                 readOnly: false
             };
             
