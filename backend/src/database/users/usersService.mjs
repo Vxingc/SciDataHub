@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import {
     dbAddUser as dbCreateUser,
     dbGetUserByUsername,
-} from './userTable.mjs';
+} from './usersTable.mjs';
 
 import logger from '../../utils/log.mjs';
 

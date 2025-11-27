@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import serverConfig from './config/server_config.mjs';
 
-import userRoutes from './database/users/userRoutes.mjs';
+import userRoutes from './database/users/usersRoutes.mjs';
 import blockchainRoutes from './database/blockchains/blockchainsRoutes.mjs';
 import datasetsRoutes from './database/datasets/datasetsRoutes.mjs';
 import chaincodeRoutes from './services/chaincode/chaincodeRoutes.mjs';
@@ -33,8 +33,8 @@ app.listen(serverConfig.port, () => {
 import { dbInitBlockchainTable, dbDeleteBlockchainTable } from './database/blockchains/blockchainsTable.mjs';
 import { addDemoBlockchains } from './database/blockchains/blockchainsDemo.mjs';
 
-import { dbInitUserTable, dbDeleteUserTable } from './database/users/userTable.mjs';
-import { addDemoUser } from './database/users/userDemo.mjs';
+import { dbInitUserTable, dbDeleteUserTable } from './database/users/usersTable.mjs';
+import { addDemoUser } from './database/users/usersDemo.mjs';
 import { addDemoDatasets } from './database/datasets/datasetsDemo.mjs';
 import { dbInitTradeOrderTable, dbDeleteTradeOrderTable } from './database/orders/tradeOrdersTable.mjs';
 import { dbInitServiceOrderTable, dbDeleteServiceOrderTable } from './database/orders/serviceOrdersTable.mjs';

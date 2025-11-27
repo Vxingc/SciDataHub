@@ -1,5 +1,5 @@
-import { dbAddUser } from './userTable.mjs';
-import {hashPassword} from './userService.mjs';
+import { dbAddUser } from './usersTable.mjs';
+import {hashPassword} from './usersService.mjs';
 import logger from '../../utils/log.mjs';
 
 // 初始化演示账户业务逻辑

@@ -3,7 +3,7 @@ import request from 'supertest';
 import { jest } from '@jest/globals';
 
 const dbModulePath = '../../../src/database/db.mjs';
-const tableModulePath = '../../../src/database/users/userTable.mjs';
+const tableModulePath = '../../../src/database/users/usersTable.mjs';
 
 jest.unstable_mockModule(dbModulePath, () => ({
 	dbRun: jest.fn(),

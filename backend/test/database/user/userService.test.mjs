@@ -2,14 +2,14 @@ import express from 'express';
 import request from 'supertest';
 import { jest } from '@jest/globals';
 
-const tableModulePath = '../../../src/database/users/userTable.mjs';
+const tableModulePath = '../../../src/database/users/usersTable.mjs';
 
 jest.unstable_mockModule(tableModulePath, () => ({
 	dbAddUser: jest.fn(),
 	dbGetUserByUsername: jest.fn()
 }));
 
-const userRoutesModule = await import('../../../src/database/users/userRoutes.mjs');
+const userRoutesModule = await import('../../../src/database/users/usersRoutes.mjs');
 const tableModule = await import(tableModulePath);
 
 const userRoutes = userRoutesModule.default;

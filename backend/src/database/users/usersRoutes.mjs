@@ -3,7 +3,7 @@ import {
     register,
     login,
     getUserByUsername,
-} from './userService.mjs';
+} from './usersService.mjs';
 
 const router = express.Router();
 
