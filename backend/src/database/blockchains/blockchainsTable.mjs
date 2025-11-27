@@ -2,7 +2,7 @@ import { dbRun, dbGet, dbAll } from '../db.mjs';
 import logger from '../../utils/log.mjs';
 
 // 初始化区块链表
-export async function initBlockchainTable() {
+export async function dbInitBlockchainTable() {
 	try {
 		logger.debug('init blockchain table');
 		await dbRun(
@@ -20,7 +20,7 @@ export async function initBlockchainTable() {
 	}
 };
 // 删除区块链表
-export async function deleteBlockchainTable() {
+export async function dbDeleteBlockchainTable() {
 	try {
 		logger.debug('delete blockchain table');
 		await dbRun('DROP TABLE IF EXISTS blockchains');
@@ -32,7 +32,7 @@ export async function deleteBlockchainTable() {
 };
 
 // 创建区块链记录
-export async function addBlockchain(name, fullName, description) {
+export async function dbAddBlockchain(name, fullName, description) {
 	try {
 		logger.debug(`creating blockchain: ${name}, ${fullName}, ${description} ...`);
 		await dbRun('INSERT INTO blockchains (name, fullName, description) VALUES (?, ?, ?)', [name, fullName, description]);
@@ -45,7 +45,7 @@ export async function addBlockchain(name, fullName, description) {
 };
 
 // 根据name查找区块链
-export async function getBlockchain(name) {
+export async function dbGetBlockchain(name) {
 	try {
 		logger.debug(`find blockchain by name: ${name} ...`);
 		const row = await dbGet('SELECT * FROM blockchains WHERE name = ?', [name]);
@@ -58,7 +58,7 @@ export async function getBlockchain(name) {
 };
 
 // 获取所有区块链记录
-export async function getAllBlockchains() {
+export async function dbGetAllBlockchains() {
 	try {
 		logger.debug('get all blockchains ...');
 		const rows = await dbAll('SELECT * FROM blockchains ORDER BY created_at DESC');
@@ -71,7 +71,7 @@ export async function getAllBlockchains() {
 };
 
 // 更新区块链记录
-export async function updateBlockchain(name, fullName, description) {
+export async function dbUpdateBlockchain(name, fullName, description) {
 	try {
 		logger.debug(`update blockchain: ${name}, ${fullName}, ${description} ...`);
 		const result = await dbRun(`
@@ -88,7 +88,7 @@ export async function updateBlockchain(name, fullName, description) {
 };
 
 // 通过name 删除区块链
-export async function deleteBlockchainByName(name) {
+export async function dbDeleteBlockchainByName(name) {
 	try {
 		logger.debug(`delete blockchain by name: ${name} ...`);
 		const result = await dbRun('DELETE FROM blockchains WHERE name = ?', [name]);

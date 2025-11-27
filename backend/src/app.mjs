@@ -30,7 +30,7 @@ app.listen(serverConfig.port, () => {
 });
 
 // 开发环境每次启动后端时，都重新初始化数据库，正式版删除后续代码
-import { initBlockchainTable, deleteBlockchainTable } from './database/blockchains/blockchainsTable.mjs';
+import { dbInitBlockchainTable, dbDeleteBlockchainTable } from './database/blockchains/blockchainsTable.mjs';
 import { addDemoBlockchains } from './database/blockchains/blockchainsDemo.mjs';
 
 import { initUserTable, deleteUserTable } from './database/users/userTable.mjs';
@@ -47,8 +47,8 @@ await initUserTable();
 await addDemoUser();
 
 // 初始化区块链表
-await deleteBlockchainTable();
-await initBlockchainTable();
+await dbDeleteBlockchainTable();
+await dbInitBlockchainTable();
 await addDemoBlockchains();
 
 // 初始化数据集表

@@ -1,19 +1,19 @@
 import {
-    addBlockchain,
-    getBlockchain,
-    getAllBlockchains,
-    updateBlockchain,
-    deleteBlockchainByName
+    dbAddBlockchain,
+    dbGetBlockchain,
+    dbGetAllBlockchains,
+    dbUpdateBlockchain,
+    dbDeleteBlockchainByName
 } from './blockchainsTable.mjs';
 import logger from '../../utils/log.mjs';
 
 // 创建区块链路由处理函数
-export const handleAddBlockchain = async (req, res) => {
+export const addBlockchain = async (req, res) => {
     try {
         const { name, fullName, description } = req.body;
 
         // 检查区块链名称是否已存在
-        const existingBlockchain = await getBlockchain(name);
+        const existingBlockchain = await dbGetBlockchain(name);
         if (existingBlockchain) {
             return res.status(400).json({
                 success: false,
@@ -42,7 +42,7 @@ export const handleAddBlockchain = async (req, res) => {
         }
 
         // 创建区块链记录
-        const blockchain = await addBlockchain(name, fullName, description || '');
+        const blockchain = await dbAddBlockchain(name, fullName, description || '');
         res.json({
             success: true,
             message: '区块链记录创建成功',
@@ -63,10 +63,10 @@ export const handleAddBlockchain = async (req, res) => {
 };
 
 // 获取所有区块链路由处理函数
-export const handleGetAllBlockchains = async (req, res) => {
+export const getAllBlockchains = async (req, res) => {
     try {
         logger.debug('接受请求，访问数据库获取所有区块链记录...');
-        const blockchains = await getAllBlockchains();
+        const blockchains = await dbGetAllBlockchains();
         logger.debug('成功获取所有区块链记录');
         res.json({
             success: true,
@@ -83,10 +83,10 @@ export const handleGetAllBlockchains = async (req, res) => {
 };
 
 // 根据名称获取区块链路由处理函数
-export const handleGetBlockchainByName = async (req, res) => {
+export const getBlockchainByName = async (req, res) => {
     try {
         const { name } = req.params;
-        const blockchain = await getBlockchain(name);
+        const blockchain = await dbGetBlockchain(name);
 
         if (!blockchain) {
             return res.status(404).json({
@@ -109,7 +109,7 @@ export const handleGetBlockchainByName = async (req, res) => {
 };
 
 // 更新区块链路由处理函数
-export const handleUpdateBlockchain = async (req, res) => {
+export const updateBlockchain = async (req, res) => {
     try {
         const { name, fullName, description } = req.body;
 
@@ -136,7 +136,7 @@ export const handleUpdateBlockchain = async (req, res) => {
         }
 
         // 检查区块链是否存在
-        const existingBlockchain = await getBlockchain(name);
+        const existingBlockchain = await dbGetBlockchain(name);
         if (!existingBlockchain) {
             return res.status(404).json({
                 success: false,
@@ -145,7 +145,7 @@ export const handleUpdateBlockchain = async (req, res) => {
         }
 
         // 更新区块链记录
-        const result = await updateBlockchain(name, fullName, description || '');
+        const result = await dbUpdateBlockchain(name, fullName, description || '');
 
         if (result.changes === 0) {
             return res.status(400).json({
@@ -155,7 +155,7 @@ export const handleUpdateBlockchain = async (req, res) => {
         }
 
         // 获取更新后的记录
-        const updatedBlockchain = await getBlockchain(name);
+        const updatedBlockchain = await dbGetBlockchain(name);
 
         res.json({
             success: true,
@@ -172,12 +172,12 @@ export const handleUpdateBlockchain = async (req, res) => {
 };
 
 // 删除区块链路由处理函数
-export const handleDeleteBlockchain = async (req, res) => {
+export const deleteBlockchain = async (req, res) => {
     try {
         const { name } = req.params;
 
         // 检查区块链是否存在
-        const existingBlockchain = await getBlockchain(name);
+        const existingBlockchain = await dbGetBlockchain(name);
         if (!existingBlockchain) {
             return res.status(404).json({
                 success: false,
@@ -186,7 +186,7 @@ export const handleDeleteBlockchain = async (req, res) => {
         }
 
         // 删除区块链记录
-        const result = await deleteBlockchainByName(name);
+        const result = await dbDeleteBlockchainByName(name);
 
         if (result.changes === 0) {
             return res.status(400).json({

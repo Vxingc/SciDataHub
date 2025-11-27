@@ -10,7 +10,7 @@ import {
     updateDatasetHash,
     updateMaskingDatasetIPFSAddress
 } from './datasetsTable.mjs';
-import { getAllBlockchains } from '../blockchains/blockchainsTable.mjs';
+import { dbGetAllBlockchains } from '../blockchains/blockchainsTable.mjs';
 import logger from '../../utils/log.mjs';
 
 // 创建数据集路由处理函数
@@ -156,7 +156,7 @@ export const handleGetAllDatasetsByOwner = async (req, res) => {
     try {
         const { name } = req.params;
         // 遍历所有dataset表
-        const blockchains = await getAllBlockchains();
+        const blockchains = await dbGetAllBlockchains();
         const datasets = [];
         
         for (const blockchain of blockchains) {
