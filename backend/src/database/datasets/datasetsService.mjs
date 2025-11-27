@@ -36,7 +36,8 @@ export const addDataset = async (req, res) => {
             });
         }
         
-        await addDataset(blockchainName, name, fullName, description, owner, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, '', maskingDatasetIPFSAddress);
+        // 调用表层方法创建数据集
+        await dbAddDataset(blockchainName, name, fullName, description, owner, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, '', maskingDatasetIPFSAddress);
         logger.debug(`创建数据集 for blockchain: ${blockchainName} success`);
         
         res.json({ 

@@ -1,4 +1,5 @@
-import { dbAddBlockchain } from './blockchainsTable.mjs';
+import { dbAddBlockchain, dbGetAllBlockchains } from './blockchainsTable.mjs';
+import logger from '../../utils/log.mjs';
 
 export async function addDemoBlockchains() {
     try {
@@ -8,6 +9,6 @@ export async function addDemoBlockchains() {
         await dbAddBlockchain('ArtificialIntelligence', '人工智能', '人工智能相关科研数据');
         await dbAddBlockchain('CyberSecurity', '网络安全', '网络安全相关科研数据');
     } catch (error) {
-        console.error('初始化区块链记录失败:', error);
+        logger.error('初始化区块链记录失败:', error);
     }
 };
