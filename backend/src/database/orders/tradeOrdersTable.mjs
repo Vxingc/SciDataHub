@@ -2,7 +2,7 @@ import { dbRun, dbGet, dbAll } from '../db.mjs';
 import logger from '../../utils/log.mjs';
 
 // 交易订单表初始化
-export async function initTradeOrderTable(blockchainName) {
+export async function dbInitTradeOrderTable(blockchainName) {
 	try {
 		logger.debug(`init trade order table for blockchain: ${blockchainName}`);
 		await dbRun(`
@@ -28,7 +28,7 @@ export async function initTradeOrderTable(blockchainName) {
 }
 
 // 删除交易订单表
-export async function deleteTradeOrderTable(blockchainName) {
+export async function dbDeleteTradeOrderTable(blockchainName) {
 	try {
 		logger.debug(`delete trade order table for blockchain: ${blockchainName}`);
 		await dbRun(`DROP TABLE IF EXISTS trade_orders_${blockchainName}`);
@@ -40,7 +40,7 @@ export async function deleteTradeOrderTable(blockchainName) {
 }
 
 // 创建交易订单
-export async function addTradeOrder(blockchainName, title, description, datasetName, datasetOwner, requester, maskingRules) {
+export async function dbAddTradeOrder(blockchainName, title, description, datasetName, datasetOwner, requester, maskingRules) {
 	try {
 		logger.debug(`creating trade order for blockchain: ${blockchainName}...`);
 		// 将maskingRules对象转换为JSON字符串存储
@@ -62,7 +62,7 @@ export async function addTradeOrder(blockchainName, title, description, datasetN
 }
 
 // 获取所有交易订单
-export async function getAllTradeOrders(blockchainName) {
+export async function dbGetAllTradeOrders(blockchainName) {
 	try {
 		logger.debug(`get all trade orders for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM trade_orders_${blockchainName} ORDER BY created_at DESC`);
@@ -82,7 +82,7 @@ export async function getAllTradeOrders(blockchainName) {
 }
 
 // 根据请求者获取交易订单
-export async function getTradeOrdersByRequester(blockchainName, requester) {
+export async function dbGetTradeOrdersByRequester(blockchainName, requester) {
 	try {
 		logger.debug(`get trade orders by requester ${requester} for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM trade_orders_${blockchainName} WHERE requester = ? ORDER BY created_at DESC`, [requester]);
@@ -102,7 +102,7 @@ export async function getTradeOrdersByRequester(blockchainName, requester) {
 }
 
 // 根据数据拥有者获取交易订单
-export async function getTradeOrdersByDatasetOwner(blockchainName, owner) {
+export async function dbGetTradeOrdersByDatasetOwner(blockchainName, owner) {
 	try {
 		logger.debug(`get trade orders by dataset owner ${owner} for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM trade_orders_${blockchainName} WHERE datasetOwner = ? ORDER BY created_at DESC`, [owner]);
@@ -122,7 +122,7 @@ export async function getTradeOrdersByDatasetOwner(blockchainName, owner) {
 }
 
 // 根据数据集获取交易订单
-export async function getTradeOrdersByDataset(blockchainName, datasetName) {
+export async function dbGetTradeOrdersByDataset(blockchainName, datasetName) {
 	try {
 		logger.debug(`get trade orders by dataset ${datasetName} for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM trade_orders_${blockchainName} WHERE datasetName = ? ORDER BY created_at DESC`, [datasetName]);
@@ -142,7 +142,7 @@ export async function getTradeOrdersByDataset(blockchainName, datasetName) {
 }
 
 // 根据ID获取交易订单
-export async function getTradeOrderById(blockchainName, orderId) {
+export async function dbGetTradeOrderById(blockchainName, orderId) {
 	try {
 		logger.debug(`get trade order by id ${orderId} for blockchain: ${blockchainName}`);
 		const row = await dbGet(`SELECT * FROM trade_orders_${blockchainName} WHERE id = ?`, [orderId]);
@@ -161,12 +161,12 @@ export async function getTradeOrderById(blockchainName, orderId) {
 }
 
 // 更新交易订单状态
-export async function updateTradeOrderStatus(blockchainName, orderId, status) {
+export async function dbUpdateTradeOrderStatus(blockchainName, orderId, status) {
 	try {
 		logger.debug(`update trade order status for blockchain: ${blockchainName}, order id: ${orderId}, status: ${status}`);
 		await dbRun(`UPDATE trade_orders_${blockchainName} SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, [status, orderId]);
 		
-		const updatedOrder = await getTradeOrderById(blockchainName, orderId);
+		const updatedOrder = await dbGetTradeOrderById(blockchainName, orderId);
 		logger.debug(`update trade order status for blockchain: ${blockchainName} success`);
 		return updatedOrder;
 	} catch (err) {
@@ -176,7 +176,7 @@ export async function updateTradeOrderStatus(blockchainName, orderId, status) {
 }
 
 // 删除交易订单
-export async function deleteTradeOrder(blockchainName, orderId) {
+export async function dbDeleteTradeOrder(blockchainName, orderId) {
 	try {
 		logger.debug(`delete trade order for blockchain: ${blockchainName}, order id: ${orderId}`);
 		await dbRun(`DELETE FROM trade_orders_${blockchainName} WHERE id = ?`, [orderId]);

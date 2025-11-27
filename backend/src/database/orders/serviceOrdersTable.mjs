@@ -2,7 +2,7 @@ import { dbRun, dbGet, dbAll } from '../db.mjs';
 import logger from '../../utils/log.mjs';
 
 // 服务订单表初始化
-export async function initServiceOrderTable(blockchainName) {
+export async function dbInitServiceOrderTable(blockchainName) {
 	try {
 		logger.debug(`init service order table for blockchain: ${blockchainName}`);
 		await dbRun(`
@@ -29,7 +29,7 @@ export async function initServiceOrderTable(blockchainName) {
 }
 
 // 删除服务订单表
-export async function deleteServiceOrderTable(blockchainName) {
+export async function dbDeleteServiceOrderTable(blockchainName) {
 	try {
 		logger.debug(`delete service order table for blockchain: ${blockchainName}`);
 		await dbRun(`DROP TABLE IF EXISTS service_orders_${blockchainName}`);
@@ -41,7 +41,7 @@ export async function deleteServiceOrderTable(blockchainName) {
 }
 
 // 创建服务订单
-export async function addServiceOrder(blockchainName, title, description, datasetName, datasetOwner, requester, serviceType, serviceConfig) {
+export async function dbAddServiceOrder(blockchainName, title, description, datasetName, datasetOwner, requester, serviceType, serviceConfig) {
 	try {
 		logger.debug(`creating service order for blockchain: ${blockchainName}...`);
 		// 将serviceConfig对象转换为JSON字符串存储
@@ -62,7 +62,7 @@ export async function addServiceOrder(blockchainName, title, description, datase
 }
 
 // 获取所有服务订单
-export async function getAllServiceOrders(blockchainName) {
+export async function dbGetAllServiceOrders(blockchainName) {
 	try {
 		logger.debug(`get all service orders for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM service_orders_${blockchainName} ORDER BY created_at DESC`);
@@ -82,7 +82,7 @@ export async function getAllServiceOrders(blockchainName) {
 }
 
 // 根据请求者获取服务订单
-export async function getServiceOrdersByRequester(blockchainName, requester) {
+export async function dbGetServiceOrdersByRequester(blockchainName, requester) {
 	try {
 		logger.debug(`get service orders by requester ${requester} for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM service_orders_${blockchainName} WHERE requester = ? ORDER BY created_at DESC`, [requester]);
@@ -102,7 +102,7 @@ export async function getServiceOrdersByRequester(blockchainName, requester) {
 }
 
 // 根据数据拥有者获取服务订单
-export async function getServiceOrdersByDatasetOwner(blockchainName, owner) {
+export async function dbGetServiceOrdersByDatasetOwner(blockchainName, owner) {
 	try {
 		logger.debug(`get service orders by dataset owner ${owner} for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM service_orders_${blockchainName} WHERE datasetOwner = ? ORDER BY created_at DESC`, [owner]);
@@ -122,7 +122,7 @@ export async function getServiceOrdersByDatasetOwner(blockchainName, owner) {
 }
 
 // 根据数据集获取服务订单
-export async function getServiceOrdersByDataset(blockchainName, datasetName) {
+export async function dbGetServiceOrdersByDataset(blockchainName, datasetName) {
 	try {
 		logger.debug(`get service orders by dataset ${datasetName} for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM service_orders_${blockchainName} WHERE datasetName = ? ORDER BY created_at DESC`, [datasetName]);
@@ -142,7 +142,7 @@ export async function getServiceOrdersByDataset(blockchainName, datasetName) {
 }
 
 // 根据ID获取服务订单
-export async function getServiceOrderById(blockchainName, orderId) {
+export async function dbGetServiceOrderById(blockchainName, orderId) {
 	try {
 		logger.debug(`get service order by id ${orderId} for blockchain: ${blockchainName}`);
 		const row = await dbGet(`SELECT * FROM service_orders_${blockchainName} WHERE id = ?`, [orderId]);
@@ -161,12 +161,12 @@ export async function getServiceOrderById(blockchainName, orderId) {
 }
 
 // 更新服务订单状态
-export async function updateServiceOrderStatus(blockchainName, orderId, status) {
+export async function dbUpdateServiceOrderStatus(blockchainName, orderId, status) {
 	try {
 		logger.debug(`update service order status for blockchain: ${blockchainName}, order id: ${orderId}, status: ${status}`);
 		await dbRun(`UPDATE service_orders_${blockchainName} SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`, [status, orderId]);
 		
-		const updatedOrder = await getServiceOrderById(blockchainName, orderId);
+		const updatedOrder = await dbGetServiceOrderById(blockchainName, orderId);
 		logger.debug(`update service order status for blockchain: ${blockchainName} success`);
 		return updatedOrder;
 	} catch (err) {
@@ -176,7 +176,7 @@ export async function updateServiceOrderStatus(blockchainName, orderId, status) 
 }
 
 // 删除服务订单
-export async function deleteServiceOrder(blockchainName, orderId) {
+export async function dbDeleteServiceOrder(blockchainName, orderId) {
 	try {
 		logger.debug(`delete service order for blockchain: ${blockchainName}, order id: ${orderId}`);
 		await dbRun(`DELETE FROM service_orders_${blockchainName} WHERE id = ?`, [orderId]);

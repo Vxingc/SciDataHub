@@ -1,18 +1,18 @@
 
 import {
-    addTradeOrder,
-    getAllTradeOrders,
-    getTradeOrdersByRequester,
-    getTradeOrdersByDatasetOwner,
-    getTradeOrdersByDataset,
-    getTradeOrderById,
-    updateTradeOrderStatus,
-    deleteTradeOrder
+    dbAddTradeOrder,
+    dbGetAllTradeOrders,
+    dbGetTradeOrdersByRequester,
+    dbGetTradeOrdersByDatasetOwner,
+    dbGetTradeOrdersByDataset,
+    dbGetTradeOrderById,
+    dbUpdateTradeOrderStatus,
+    dbDeleteTradeOrder
 } from './tradeOrdersTable.mjs';
 import logger from '../../utils/log.mjs';
 
 // 创建交易订单
-export async function handleAddTradeOrder(req, res) {
+export async function addTradeOrder(req, res) {
     try {
         const { title, description, blockchainName, datasetName, datasetOwner, requester, maskingRules } = req.body;
         logger.debug(`Add trade order: ${JSON.stringify(req.body)}`);
@@ -26,7 +26,7 @@ export async function handleAddTradeOrder(req, res) {
             });
         }
 
-        const orderId = await addTradeOrder(
+        const orderId = await dbAddTradeOrder(
             blockchainName,
             title,
             description,
@@ -53,7 +53,7 @@ export async function handleAddTradeOrder(req, res) {
 }
 
 // 获取所有交易订单
-export async function handleGetTradeOrders(req, res) {
+export async function getTradeOrders(req, res) {
     try {
         const { blockchainName } = req.params;
 
@@ -64,7 +64,7 @@ export async function handleGetTradeOrders(req, res) {
             });
         }
 
-        const orders = await getAllTradeOrders(blockchainName);
+        const orders = await dbGetAllTradeOrders(blockchainName);
 
         res.status(200).json({
             success: true,
@@ -82,7 +82,7 @@ export async function handleGetTradeOrders(req, res) {
 }
 
 // 根据请求者获取交易订单
-export async function handleGetTradeOrdersByRequester(req, res) {
+export async function getTradeOrdersByRequester(req, res) {
     try {
         const { blockchainName } = req.params;
         const requester = req.user?.username;
@@ -101,7 +101,7 @@ export async function handleGetTradeOrdersByRequester(req, res) {
             });
         }
 
-        const orders = await getTradeOrdersByRequester(blockchainName, requester);
+        const orders = await dbGetTradeOrdersByRequester(blockchainName, requester);
 
         res.status(200).json({
             success: true,
@@ -119,7 +119,7 @@ export async function handleGetTradeOrdersByRequester(req, res) {
 }
 
 // 根据数据拥有者获取交易订单
-export async function handleGetTradeOrdersByOwner(req, res) {
+export async function getTradeOrdersByOwner(req, res) {
     try {
         const { blockchainName, owner } = req.params;
 
@@ -130,7 +130,7 @@ export async function handleGetTradeOrdersByOwner(req, res) {
             });
         }
 
-        const orders = await getTradeOrdersByDatasetOwner(blockchainName, owner);
+        const orders = await dbGetTradeOrdersByDatasetOwner(blockchainName, owner);
 
         res.status(200).json({
             success: true,
@@ -148,7 +148,7 @@ export async function handleGetTradeOrdersByOwner(req, res) {
 }
 
 // 根据数据集获取交易订单
-export async function handleGetTradeOrdersByDatasetName(req, res) {
+export async function getTradeOrdersByDatasetName(req, res) {
     try {
         const { blockchainName, datasetName } = req.params;
 
@@ -159,7 +159,7 @@ export async function handleGetTradeOrdersByDatasetName(req, res) {
             });
         }
 
-        const orders = await getTradeOrdersByDataset(blockchainName, datasetName);
+        const orders = await dbGetTradeOrdersByDataset(blockchainName, datasetName);
 
         res.status(200).json({
             success: true,
@@ -177,7 +177,7 @@ export async function handleGetTradeOrdersByDatasetName(req, res) {
 }
 
 // 根据ID获取单个交易订单
-export async function handleGetTradeOrderDetails(req, res) {
+export async function getTradeOrderDetails(req, res) {
     try {
         const { blockchainName, orderId } = req.params;
 
@@ -188,7 +188,7 @@ export async function handleGetTradeOrderDetails(req, res) {
             });
         }
 
-        const order = await getTradeOrderById(blockchainName, parseInt(orderId));
+        const order = await dbGetTradeOrderById(blockchainName, parseInt(orderId));
 
         if (!order) {
             return res.status(404).json({
@@ -213,7 +213,7 @@ export async function handleGetTradeOrderDetails(req, res) {
 }
 
 // 更新交易订单状态
-export async function handleUpdateTradeOrderState(req, res) {
+export async function updateTradeOrderState(req, res) {
     try {
         const { blockchainName, orderId } = req.params;
         const { status } = req.body;
@@ -234,7 +234,7 @@ export async function handleUpdateTradeOrderState(req, res) {
             });
         }
 
-        const updatedOrder = await updateTradeOrderStatus(blockchainName, parseInt(orderId), status);
+        const updatedOrder = await dbUpdateTradeOrderStatus(blockchainName, parseInt(orderId), status);
 
         if (!updatedOrder) {
             return res.status(404).json({
@@ -260,7 +260,7 @@ export async function handleUpdateTradeOrderState(req, res) {
 }
 
 // 删除交易订单
-export async function handleRemoveTradeOrder(req, res) {
+export async function removeTradeOrder(req, res) {
     try {
         const { blockchainName, orderId } = req.params;
         const currentUser = req.user?.username;
@@ -280,7 +280,7 @@ export async function handleRemoveTradeOrder(req, res) {
         }
 
         // 先获取订单信息，验证权限
-        const order = await getTradeOrderById(blockchainName, parseInt(orderId));
+        const order = await dbGetTradeOrderById(blockchainName, parseInt(orderId));
         if (!order) {
             return res.status(404).json({
                 success: false,
@@ -296,7 +296,7 @@ export async function handleRemoveTradeOrder(req, res) {
             });
         }
 
-        await deleteTradeOrder(blockchainName, parseInt(orderId));
+        await dbDeleteTradeOrder(blockchainName, parseInt(orderId));
 
         logger.info(`Trade order deleted: ${orderId} by ${currentUser}`);
         res.status(200).json({

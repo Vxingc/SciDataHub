@@ -1,17 +1,17 @@
 import {
-    addServiceOrder,
-    getAllServiceOrders,
-    getServiceOrdersByRequester,
-    getServiceOrdersByDatasetOwner,
-    getServiceOrdersByDataset,
-    getServiceOrderById,
-    updateServiceOrderStatus,
-    deleteServiceOrder
+    dbAddServiceOrder,
+    dbGetAllServiceOrders,
+    dbGetServiceOrdersByRequester,
+    dbGetServiceOrdersByDatasetOwner,
+    dbGetServiceOrdersByDataset,
+    dbGetServiceOrderById,
+    dbUpdateServiceOrderStatus,
+    dbDeleteServiceOrder
 } from './serviceOrdersTable.mjs';
 import logger from '../../utils/log.mjs';
 
 // 创建服务订单
-export async function handleAddServiceOrder(req, res) {
+export async function addServiceOrder(req, res) {
     try {
         const { title, description, blockchainName, datasetName, datasetOwner, serviceType, serviceConfig } = req.body;
         const requester = req.user?.username;
@@ -31,7 +31,7 @@ export async function handleAddServiceOrder(req, res) {
             });
         }
 
-        const orderId = await addServiceOrder(
+        const orderId = await dbAddServiceOrder(
             blockchainName,
             title,
             description,
@@ -59,7 +59,7 @@ export async function handleAddServiceOrder(req, res) {
 }
 
 // 获取所有服务订单
-export async function handleGetServiceOrders(req, res) {
+export async function getServiceOrders(req, res) {
     try {
         const { blockchainName } = req.params;
 
@@ -70,7 +70,7 @@ export async function handleGetServiceOrders(req, res) {
             });
         }
 
-        const orders = await getAllServiceOrders(blockchainName);
+        const orders = await dbGetAllServiceOrders(blockchainName);
 
         res.status(200).json({
             success: true,
@@ -88,7 +88,7 @@ export async function handleGetServiceOrders(req, res) {
 }
 
 // 根据请求者获取服务订单
-export async function handleGetServiceOrdersByRequester(req, res) {
+export async function getServiceOrdersByRequester(req, res) {
     try {
         const { blockchainName } = req.params;
         const requester = req.user?.username;
@@ -107,7 +107,7 @@ export async function handleGetServiceOrdersByRequester(req, res) {
             });
         }
 
-        const orders = await getServiceOrdersByRequester(blockchainName, requester);
+        const orders = await dbGetServiceOrdersByRequester(blockchainName, requester);
 
         res.status(200).json({
             success: true,
@@ -125,7 +125,7 @@ export async function handleGetServiceOrdersByRequester(req, res) {
 }
 
 // 根据数据拥有者获取服务订单
-export async function handleGetServiceOrdersByOwner(req, res) {
+export async function getServiceOrdersByOwner(req, res) {
     try {
         const { blockchainName, owner } = req.params;
 
@@ -136,7 +136,7 @@ export async function handleGetServiceOrdersByOwner(req, res) {
             });
         }
 
-        const orders = await getServiceOrdersByDatasetOwner(blockchainName, owner);
+        const orders = await dbGetServiceOrdersByDatasetOwner(blockchainName, owner);
 
         res.status(200).json({
             success: true,
@@ -154,7 +154,7 @@ export async function handleGetServiceOrdersByOwner(req, res) {
 }
 
 // 根据数据集获取服务订单
-export async function handleGetServiceOrdersByDatasetName(req, res) {
+export async function getServiceOrdersByDatasetName(req, res) {
     try {
         const { blockchainName, datasetName } = req.params;
 
@@ -165,7 +165,7 @@ export async function handleGetServiceOrdersByDatasetName(req, res) {
             });
         }
 
-        const orders = await getServiceOrdersByDataset(blockchainName, datasetName);
+        const orders = await dbGetServiceOrdersByDataset(blockchainName, datasetName);
 
         res.status(200).json({
             success: true,
@@ -183,7 +183,7 @@ export async function handleGetServiceOrdersByDatasetName(req, res) {
 }
 
 // 根据ID获取单个服务订单
-export async function handleGetServiceOrderDetails(req, res) {
+export async function getServiceOrderDetails(req, res) {
     try {
         const { blockchainName, orderId } = req.params;
 
@@ -194,7 +194,7 @@ export async function handleGetServiceOrderDetails(req, res) {
             });
         }
 
-        const order = await getServiceOrderById(blockchainName, parseInt(orderId));
+        const order = await dbGetServiceOrderById(blockchainName, parseInt(orderId));
 
         if (!order) {
             return res.status(404).json({
@@ -219,7 +219,7 @@ export async function handleGetServiceOrderDetails(req, res) {
 }
 
 // 更新服务订单状态
-export async function handleUpdateServiceOrderState(req, res) {
+export async function updateServiceOrderState(req, res) {
     try {
         const { blockchainName, orderId } = req.params;
         const { status } = req.body;
@@ -240,7 +240,7 @@ export async function handleUpdateServiceOrderState(req, res) {
             });
         }
 
-        const updatedOrder = await updateServiceOrderStatus(blockchainName, parseInt(orderId), status);
+        const updatedOrder = await dbUpdateServiceOrderStatus(blockchainName, parseInt(orderId), status);
 
         if (!updatedOrder) {
             return res.status(404).json({
@@ -266,7 +266,7 @@ export async function handleUpdateServiceOrderState(req, res) {
 }
 
 // 删除服务订单
-export async function handleRemoveServiceOrder(req, res) {
+export async function removeServiceOrder(req, res) {
     try {
         const { blockchainName, orderId } = req.params;
         const currentUser = req.user?.username;
@@ -286,7 +286,7 @@ export async function handleRemoveServiceOrder(req, res) {
         }
 
         // 先获取订单信息，验证权限
-        const order = await getServiceOrderById(blockchainName, parseInt(orderId));
+        const order = await dbGetServiceOrderById(blockchainName, parseInt(orderId));
         if (!order) {
             return res.status(404).json({
                 success: false,
@@ -302,7 +302,7 @@ export async function handleRemoveServiceOrder(req, res) {
             });
         }
 
-        await deleteServiceOrder(blockchainName, parseInt(orderId));
+        await dbDeleteServiceOrder(blockchainName, parseInt(orderId));
 
         logger.info(`Service order deleted: ${orderId} by ${currentUser}`);
         res.status(200).json({
