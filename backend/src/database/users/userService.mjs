@@ -1,8 +1,9 @@
 import crypto from 'crypto';
 import {
-    addUser as dbCreateUser,
-    getUserByUsername,
+    dbAddUser as dbCreateUser,
+    dbGetUserByUsername,
 } from './userTable.mjs';
+
 import logger from '../../utils/log.mjs';
 
 // 密码加密函数
@@ -20,12 +21,12 @@ export async function verifyPassword(password, hashedPassword) {
 };
 
 // 用户注册路由处理函数
-export async function handleRegister(req, res) {
+export async function register(req, res) {
     try {
         const { username, password } = req.body;
 
         // 检查用户名是否已存在
-        const existingUser = await getUserByUsername(username);
+        const existingUser = await dbGetUserByUsername(username);
         if (existingUser) {
             return res.status(400).json({
                 success: false,
@@ -76,7 +77,7 @@ export async function handleRegister(req, res) {
 };
 
 // 用户登录路由处理函数
-export async function handleLogin(req, res) {
+export async function login(req, res) {
     try {
         const { username, password } = req.body;
 
@@ -89,7 +90,7 @@ export async function handleLogin(req, res) {
         }
 
         // 查找用户
-        const user = await getUserByUsername(username);
+        const user = await dbGetUserByUsername(username);
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -126,10 +127,10 @@ export async function handleLogin(req, res) {
 
 
 // 根据用户名获取用户信息路由处理函数
-export async function handleGetUserByUsername(req, res) {
+export async function getUserByUsername(req, res) {
     try {
         const { username } = req.params;
-        const user = await getUserByUsername(username);
+        const user = await dbGetUserByUsername(username);
 
         if (!user) {
             return res.status(404).json({

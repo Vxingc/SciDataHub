@@ -2,7 +2,7 @@ import { dbRun, dbGet } from '../db.mjs';
 import logger from '../../utils/log.mjs';
 
 // 初始化用户表
-export async function initUserTable() {
+export async function dbInitUserTable() {
 	try {
 		logger.debug('初始化用户表...');
 		await dbRun(`
@@ -20,7 +20,7 @@ export async function initUserTable() {
 	}
 };
 
-export async function deleteUserTable() {
+export async function dbDeleteUserTable() {
 	try {
 		logger.debug('删除用户表...');
 		await dbRun('DROP TABLE IF EXISTS users');
@@ -32,7 +32,7 @@ export async function deleteUserTable() {
 };
 
 // 创建用户
-export async function addUser(username, password) {
+export async function dbAddUser(username, password) {
 	try {
 		logger.debug(`创建用户: ${username}: ${password}`);
 		const result = await dbRun('INSERT INTO users (username, password) VALUES (?, ?)', [username, password]);
@@ -45,7 +45,7 @@ export async function addUser(username, password) {
 };
 
 // 根据用户名查找用户
-export async function getUserByUsername(username) {
+export async function dbGetUserByUsername(username) {
 	try {
 		logger.debug(`查找用户: ${username}`);
 		const row = await dbGet('SELECT * FROM users WHERE username = ?', [username]);
@@ -63,7 +63,7 @@ export async function getUserByUsername(username) {
 
 
 // 删除用户
-export async function deleteUser(username) {
+export async function dbDeleteUser(username) {
 	try {
 		logger.debug(`删除用户: ${username}`);
 		await dbRun('DELETE FROM users WHERE username = ?', [username]);

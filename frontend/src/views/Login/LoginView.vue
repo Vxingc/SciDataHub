@@ -27,7 +27,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <form @submit.prevent="handleLogin" class="text-start">
+                <form @submit.prevent="login" class="text-start">
                   <div class="input-group input-group-outline my-3">
                     <label for="username" class="form-label"></label>
                     <input id="username" type="text" class="form-control" v-model="username" placeholder="输入用户名"
@@ -46,7 +46,7 @@
 
                   <div class="text-center">
                     <button type="submit" class="btn btn-success btn-lg w-100 my-2 mb-2">登录</button>
-                    <button @click="handleRegister" type="button" class="btn btn-primary btn-lg w-100 my-2">注册</button>
+                    <button @click="register" type="button" class="btn btn-primary btn-lg w-100 my-2">注册</button>
                     <button @click="handleDemoDataOwnerLogin" type="button" class="btn btn-secondary btn-lg w-100 my-2">演示账户登录-数据拥有者</button>
                     <button @click="handleDemoDataRequesterLogin" type="button" class="btn btn-dark btn-lg w-100 my-2">演示账户登录-数据请求者</button>
                   </div>
@@ -79,7 +79,7 @@ const showPassword = ref(false);
 
 
 
-const handleLogin = async () => {
+const login = async () => {
   try {
     const response = await axios.post('/login', {
       username: username.value,
@@ -99,7 +99,7 @@ const handleLogin = async () => {
   }
 };
 
-const handleRegister = async () => {
+const register = async () => {
   try {
     const response = await axios.post('/register', {
       username: username.value,

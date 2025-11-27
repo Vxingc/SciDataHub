@@ -1,4 +1,4 @@
-import { addUser } from './userTable.mjs';
+import { dbAddUser } from './userTable.mjs';
 import {hashPassword} from './userService.mjs';
 import logger from '../../utils/log.mjs';
 
@@ -11,13 +11,13 @@ export async function addDemoUser() {
         const dataOwnerUsername = 'demoDataOwner';
         const dataOwnerPassword = 'demoDataOwner';
         const hashedDataOwnerPassword = await hashPassword(dataOwnerPassword);
-        await addUser(dataOwnerUsername, hashedDataOwnerPassword);
+        await dbAddUser(dataOwnerUsername, hashedDataOwnerPassword);
 
         // 创建数据请求者演示账户
         const dataRequesterUsername = 'demoDataRequester';
         const dataRequesterPassword = 'demoDataRequester';
         const hashedDataRequesterPassword = await hashPassword(dataRequesterPassword);
-        await addUser(dataRequesterUsername, hashedDataRequesterPassword);
+        await dbAddUser(dataRequesterUsername, hashedDataRequesterPassword);
         
         return {
             success: true,

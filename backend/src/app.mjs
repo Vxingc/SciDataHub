@@ -33,7 +33,7 @@ app.listen(serverConfig.port, () => {
 import { dbInitBlockchainTable, dbDeleteBlockchainTable } from './database/blockchains/blockchainsTable.mjs';
 import { addDemoBlockchains } from './database/blockchains/blockchainsDemo.mjs';
 
-import { initUserTable, deleteUserTable } from './database/users/userTable.mjs';
+import { dbInitUserTable, dbDeleteUserTable } from './database/users/userTable.mjs';
 import { addDemoUser } from './database/users/userDemo.mjs';
 import { addDemoDatasets } from './database/datasets/datasetsDemo.mjs';
 import { dbInitTradeOrderTable, dbDeleteTradeOrderTable } from './database/orders/tradeOrdersTable.mjs';
@@ -42,8 +42,8 @@ import { dbInitServiceOrderTable, dbDeleteServiceOrderTable } from './database/o
 logger.info("初始化后端数据库")
 
 // 初始化用户表
-await deleteUserTable();
-await initUserTable();
+await dbDeleteUserTable();
+await dbInitUserTable();
 await addDemoUser();
 
 // 初始化区块链表
