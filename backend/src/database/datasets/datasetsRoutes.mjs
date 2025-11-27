@@ -1,31 +1,32 @@
 import express from 'express';
 import { 
-    handleAddDataset,
-    handleDeleteDataset,
-    handleGetAllDatasets,
-    handleGetPublicDatasets,
-    handleGetDatasetsByOwner,
-    handleGetAllDatasetsByOwner,
-    handleGetDatasetByDatasetName,
-    handleUpdateDatasetInfo,
-    handleUpdateDatasetPublicLevel,
-    handleUpdateDatasetHash,
-    handleUpdateMaskingDatasetIPFSAddress
+    addDataset,
+    deleteDataset,
+    getAllDatasets,
+    getPublicDatasets,
+    getDatasetsByOwner,
+    getAllDatasetsByOwner,
+    getDatasetByName,
+    updateDatasetInfo,
+    updateDatasetPublicLevel,
+    updateDatasetHash,
+    updateMaskingDatasetIPFSAddress
 } from './datasetsService.mjs';
 
 const router = express.Router();
 
 // 数据集相关路由
-router.post('/addDataset/:blockchainName', handleAddDataset);
-router.delete('/dataset/:blockchainName/:name', handleDeleteDataset);
-router.get('/datasets/:blockchainName', handleGetAllDatasets);
-router.get('/getPublicDatasets/:blockchainName', handleGetPublicDatasets);
-router.get('/datasets/:blockchainName/owner/:owner', handleGetDatasetsByOwner);
-router.get('/getAlldatasetsByOwner/:name', handleGetAllDatasetsByOwner);
-router.get('/getDatasetByDatasetName/:blockchainName/:name', handleGetDatasetByDatasetName);
-router.post('/updateDatasetInfo/:blockchainName/:name', handleUpdateDatasetInfo);
-router.post('/updateDatasetPublicLevel/:blockchainName/:name', handleUpdateDatasetPublicLevel);
-router.post('/updateDatasetHash/:blockchainName/:name', handleUpdateDatasetHash);
-router.post('/updateMaskingDatasetIPFSAddress/:blockchainName/:name', handleUpdateMaskingDatasetIPFSAddress);
+router.get('/getPublicDatasets', getPublicDatasets);
+
+router.post('/:blockchainName/addDataset', addDataset);
+router.delete('/:blockchainName/:name', deleteDataset);
+router.get('/:blockchainName/datasets', getAllDatasets);
+router.get('/:blockchainName/datasets/owner/:owner', getDatasetsByOwner);
+router.get('/:blockchainName/getAlldatasetsByOwner/:name', getAllDatasetsByOwner);
+router.get('/:blockchainName/getDatasetByDatasetName/:name', getDatasetByName);
+router.post('/:blockchainName/updateDatasetInfo/:name', updateDatasetInfo);
+router.post('/:blockchainName/updateDatasetPublicLevel/:name', updateDatasetPublicLevel);
+router.post('/:blockchainName/updateDatasetHash/:name', updateDatasetHash);
+router.post('/:blockchainName/updateMaskingDatasetIPFSAddress/:name', updateMaskingDatasetIPFSAddress);
 
 export default router;

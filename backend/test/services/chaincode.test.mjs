@@ -1,4 +1,4 @@
-import { displayInputParameters, initializeContract, initLedger, getUser, getTokenBalance, addUser, setTokenBalance, addTokenBalance, transferTokens, getDataset, getDatasetOwner, addDataset, getAllDatasets, createOrder, getOrder, getAllOrders, updateOrderStatus } from '../../src/services/chaincode/chaincode.mjs';
+import { displayInputParameters, initializeContract, initLedger, getUser, getTokenBalance, addUser, setTokenBalance, addTokenBalance, transferTokens, getDataset, getDatasetOwner, addDataset, dbGetAllDatasets, createOrder, getOrder, getAllOrders, updateOrderStatus } from '../../src/services/chaincode/chaincode.mjs';
 import logger from '../../src/utils/log.mjs';
 import { generateHashChain, randStr } from '../../src/utils/utils.mjs';
 
@@ -34,7 +34,7 @@ async function TestDataset() {
     console.log("newDatasetHash: ", newDatasetHash);
     await addDataset(contract, newDatasetHash, "testDataOwner");
     await getDataset(contract, newDatasetHash)
-    await getAllDatasets(contract);
+    await dbGetAllDatasets(contract);
 }
 
 async function TestOrder() {

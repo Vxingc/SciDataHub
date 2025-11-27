@@ -1,20 +1,20 @@
 import {
-    addDataset,
-    deleteDataset,
-    getAllDatasets,
-    getPublicDatasets,
-    getDatasetsByOwner,
-    getDatasetByDatasetName,
-    updateDatasetInfo,
-    updateDatasetPublicLevel,
-    updateDatasetHash,
-    updateMaskingDatasetIPFSAddress
+    dbAddDataset,
+    dbDeleteDataset,
+    dbGetAllDatasets,
+    dbGetPublicDatasets,
+    dbGetDatasetsByOwner,
+    dbGetDatasetByName,
+    dbUpdateDatasetInfo,
+    dbUpdateDatasetPublicLevel,
+    dbUpdateDatasetHash,
+    dbUpdateMaskingDatasetIPFSAddress
 } from './datasetsTable.mjs';
 import { dbGetAllBlockchains } from '../blockchains/blockchainsTable.mjs';
 import logger from '../../utils/log.mjs';
 
 // 创建数据集路由处理函数
-export const handleAddDataset = async (req, res) => {
+export const addDataset = async (req, res) => {
     try {
         const { blockchainName } = req.params;
         const { name, fullName, description, owner, isPublic = false, canMaskingShare = false, canCustomMaskingTrade = false, canDataService = false, maskingDatasetIPFSAddress = '' } = req.body;
@@ -28,7 +28,7 @@ export const handleAddDataset = async (req, res) => {
         }
         
         // 检查数据集是否已存在
-        const existingDataset = await getDatasetByDatasetName(blockchainName, name);
+        const existingDataset = await dbGetDatasetByName(blockchainName, name);
         if (existingDataset) {
             return res.status(400).json({
                 success: false,
@@ -60,12 +60,12 @@ export const handleAddDataset = async (req, res) => {
 };
 
 // 删除数据集路由处理函数
-export const handleDeleteDataset = async (req, res) => {
+export const deleteDataset = async (req, res) => {
     try {
         const { blockchainName, name } = req.params;
         
         // 检查数据集是否存在
-        const existingDataset = await getDatasetByDatasetName(blockchainName, name);
+        const existingDataset = await dbGetDatasetByName(blockchainName, name);
         if (!existingDataset) {
             return res.status(404).json({
                 success: false,
@@ -73,7 +73,7 @@ export const handleDeleteDataset = async (req, res) => {
             });
         }
         
-        await deleteDataset(blockchainName, name);
+        await dbDeleteDataset(blockchainName, name);
         logger.debug(`删除数据集 for blockchain: ${blockchainName} success`);
         
         res.json({ 
@@ -90,10 +90,10 @@ export const handleDeleteDataset = async (req, res) => {
 };
 
 // 获取所有数据集路由处理函数
-export const handleGetAllDatasets = async (req, res) => {
+export const getAllDatasets = async (req, res) => {
     try {
         const { blockchainName } = req.params;
-        const result = await getAllDatasets(blockchainName);
+        const result = await dbGetAllDatasets(blockchainName);
         logger.debug(`获取所有数据集 for blockchain: ${blockchainName} success`);
         
         res.json({ 
@@ -111,10 +111,10 @@ export const handleGetAllDatasets = async (req, res) => {
 };
 
 // 获取公开数据集路由处理函数
-export const handleGetPublicDatasets = async (req, res) => {
+export const getPublicDatasets = async (req, res) => {
     try {
         const { blockchainName } = req.params;
-        const result = await getPublicDatasets(blockchainName);
+        const result = await dbGetPublicDatasets(blockchainName);
         logger.debug(`获取所有公开数据集 for blockchain: ${blockchainName} success`);
         
         res.json({ 
@@ -132,10 +132,10 @@ export const handleGetPublicDatasets = async (req, res) => {
 };
 
 // 根据拥有者获取数据集路由处理函数
-export const handleGetDatasetsByOwner = async (req, res) => {
+export const getDatasetsByOwner = async (req, res) => {
     try {
         const { blockchainName, owner } = req.params;
-        const result = await getDatasetsByOwner(blockchainName, owner);
+        const result = await dbGetDatasetsByOwner(blockchainName, owner);
         
         res.json({ 
             success: true, 
@@ -152,7 +152,7 @@ export const handleGetDatasetsByOwner = async (req, res) => {
 };
 
 // 根据用户名获取所有区块链上的数据集路由处理函数
-export const handleGetAllDatasetsByOwner = async (req, res) => {
+export const getAllDatasetsByOwner = async (req, res) => {
     try {
         const { name } = req.params;
         // 遍历所有dataset表
@@ -160,7 +160,7 @@ export const handleGetAllDatasetsByOwner = async (req, res) => {
         const datasets = [];
         
         for (const blockchain of blockchains) {
-            const results = await getDatasetsByOwner(blockchain.name, name);
+            const results = await dbGetDatasetsByOwner(blockchain.name, name);
             // 遍历results列表，给每一项添加blockchainName 
             for (const result of results){
                 result.blockchainName = blockchain.name;
@@ -183,10 +183,10 @@ export const handleGetAllDatasetsByOwner = async (req, res) => {
 };
 
 // 根据数据集名称获取数据集路由处理函数
-export const handleGetDatasetByDatasetName = async (req, res) => {
+export const getDatasetByName = async (req, res) => {
     try {
         const { blockchainName, name } = req.params;
-        const result = await getDatasetByDatasetName(blockchainName, name);
+        const result = await dbGetDatasetByName(blockchainName, name);
         
         if (!result) {
             return res.status(404).json({
@@ -210,7 +210,7 @@ export const handleGetDatasetByDatasetName = async (req, res) => {
 };
 
 // 更新数据集信息路由处理函数
-export const handleUpdateDatasetInfo = async (req, res) => {
+export const updateDatasetInfo = async (req, res) => {
     try {
         const { blockchainName, name } = req.params;
         const { fullName, description } = req.body;
@@ -224,7 +224,7 @@ export const handleUpdateDatasetInfo = async (req, res) => {
         }
         
         // 检查数据集是否存在
-        const existingDataset = await getDatasetByDatasetName(blockchainName, name);
+        const existingDataset = await dbGetDatasetByName(blockchainName, name);
         if (!existingDataset) {
             return res.status(404).json({
                 success: false,
@@ -232,7 +232,7 @@ export const handleUpdateDatasetInfo = async (req, res) => {
             });
         }
         
-        const updatedDataset = await updateDatasetInfo(blockchainName, name, fullName, description);
+        const updatedDataset = await dbUpdateDatasetInfo(blockchainName, name, fullName, description);
         
         res.json({ 
             success: true, 
@@ -249,15 +249,15 @@ export const handleUpdateDatasetInfo = async (req, res) => {
 };
 
 // 更新数据集公开级别路由处理函数
-export const handleUpdateDatasetPublicLevel = async (req, res) => {
+export const updateDatasetPublicLevel = async (req, res) => {
     try {
         const { blockchainName, name } = req.params;
         const { isPublic, canMaskingShare, canCustomMaskingTrade, canDataService } = req.body;
         
-        logger.debug(`handleUpdateDatasetPublicLevel: ${JSON.stringify({ blockchainName, name, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService }, null, 2)}`);
+        logger.debug(`updateDatasetPublicLevel: ${JSON.stringify({ blockchainName, name, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService }, null, 2)}`);
         
         // 检查数据集是否存在
-        const existingDataset = await getDatasetByDatasetName(blockchainName, name);
+        const existingDataset = await dbGetDatasetByName(blockchainName, name);
         if (!existingDataset) {
             return res.status(404).json({
                 success: false,
@@ -265,7 +265,7 @@ export const handleUpdateDatasetPublicLevel = async (req, res) => {
             });
         }
         
-        const updatedDataset = await updateDatasetPublicLevel(blockchainName, name, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService);
+        const updatedDataset = await dbUpdateDatasetPublicLevel(blockchainName, name, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService);
         
         res.json({ 
             success: true, 
@@ -282,12 +282,12 @@ export const handleUpdateDatasetPublicLevel = async (req, res) => {
 };
 
 // 更新数据集哈希路由处理函数
-export const handleUpdateDatasetHash = async (req, res) => {
+export const updateDatasetHash = async (req, res) => {
     try {
         const { blockchainName, name } = req.params;
         const { hash } = req.body;
         
-        logger.debug(`handleUpdateDatasetHash: ${JSON.stringify({ blockchainName, name, hash }, null, 2)}`);
+        logger.debug(`updateDatasetHash: ${JSON.stringify({ blockchainName, name, hash }, null, 2)}`);
         
         // 验证输入
         if (!hash) {
@@ -298,7 +298,7 @@ export const handleUpdateDatasetHash = async (req, res) => {
         }
         
         // 检查数据集是否存在
-        const existingDataset = await getDatasetByDatasetName(blockchainName, name);
+        const existingDataset = await dbGetDatasetByName(blockchainName, name);
         if (!existingDataset) {
             return res.status(404).json({
                 success: false,
@@ -306,7 +306,7 @@ export const handleUpdateDatasetHash = async (req, res) => {
             });
         }
         
-        const updatedDataset = await updateDatasetHash(blockchainName, name, hash);
+        const updatedDataset = await dbUpdateDatasetHash(blockchainName, name, hash);
         
         res.json({ 
             success: true, 
@@ -323,12 +323,12 @@ export const handleUpdateDatasetHash = async (req, res) => {
 };
 
 // 更新脱敏数据集IPFS地址路由处理函数
-export const handleUpdateMaskingDatasetIPFSAddress = async (req, res) => {
+export const updateMaskingDatasetIPFSAddress = async (req, res) => {
     try {
         const { blockchainName, name } = req.params;
         const { maskingDatasetIPFSAddress } = req.body;
         
-        logger.debug(`handleUpdateMaskingDatasetIPFSAddress: ${JSON.stringify({ blockchainName, name, maskingDatasetIPFSAddress }, null, 2)}`);
+        logger.debug(`updateMaskingDatasetIPFSAddress: ${JSON.stringify({ blockchainName, name, maskingDatasetIPFSAddress }, null, 2)}`);
         
         // 验证输入
         if (!maskingDatasetIPFSAddress) {
@@ -339,7 +339,7 @@ export const handleUpdateMaskingDatasetIPFSAddress = async (req, res) => {
         }
         
         // 检查数据集是否存在
-        const existingDataset = await getDatasetByDatasetName(blockchainName, name);
+        const existingDataset = await dbGetDatasetByName(blockchainName, name);
         if (!existingDataset) {
             return res.status(404).json({
                 success: false,
@@ -347,7 +347,7 @@ export const handleUpdateMaskingDatasetIPFSAddress = async (req, res) => {
             });
         }
         
-        const updatedDataset = await updateMaskingDatasetIPFSAddress(blockchainName, name, maskingDatasetIPFSAddress);
+        const updatedDataset = await dbUpdateMaskingDatasetIPFSAddress(blockchainName, name, maskingDatasetIPFSAddress);
         
         res.json({ 
             success: true, 

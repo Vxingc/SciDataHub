@@ -1,7 +1,7 @@
 import { dbRun, dbGet, dbAll } from '../db.mjs';
 import logger from '../../utils/log.mjs';
 
-export async function initDatasetTable(blockchainName) {
+export async function dbInitDatasetTable(blockchainName) {
 	try {
 		logger.debug(`init dataset table for blockchain: ${blockchainName}`);
 		await dbRun(`
@@ -27,7 +27,7 @@ export async function initDatasetTable(blockchainName) {
 	}
 }
 
-export async function deleteDatasetTable(blockchainName) {
+export async function dbDeleteDatasetTable(blockchainName) {
 	try {
 		logger.debug(`delete dataset table for blockchain: ${blockchainName}`);
 		await dbRun(`DROP TABLE IF EXISTS datasets_${blockchainName}`);
@@ -38,7 +38,7 @@ export async function deleteDatasetTable(blockchainName) {
 	}
 }
 
-export async function addDataset(blockchainName, name, fullName, description, owner, isPublic = false, canMaskingShare = false, canCustomMaskingTrade = false, canDataService = false, hash = '', maskingDatasetIPFSAddress = '') {
+export async function dbAddDataset(blockchainName, name, fullName, description, owner, isPublic = false, canMaskingShare = false, canCustomMaskingTrade = false, canDataService = false, hash = '', maskingDatasetIPFSAddress = '') {
 	try {
 		logger.debug(`creating dataset for blockchain: ${blockchainName}...`);
 		// logger.debug(`params: ${JSON.stringify({ blockchainName, name, fullName, description, owner, isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, hash, maskingDatasetIPFSAddress }, null, 2)}`)
@@ -51,7 +51,7 @@ export async function addDataset(blockchainName, name, fullName, description, ow
 	}
 }
 
-export async function deleteDataset(blockchainName, name) {
+export async function dbDeleteDataset(blockchainName, name) {
 	try {
 		logger.debug(`delete dataset for blockchain: ${blockchainName}`);
 		await dbRun(`DELETE FROM datasets_${blockchainName} WHERE name = ?`, [name]);
@@ -63,7 +63,7 @@ export async function deleteDataset(blockchainName, name) {
 	}
 }
 
-export async function getAllDatasets(blockchainName) {
+export async function dbGetAllDatasets(blockchainName) {
 	try {
 		logger.debug(`get all datasets for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM datasets_${blockchainName}`);
@@ -75,7 +75,7 @@ export async function getAllDatasets(blockchainName) {
 	}
 }
 
-export async function getPublicDatasets(blockchainName) {
+export async function dbGetPublicDatasets(blockchainName) {
 	try {
 		logger.debug(`get all public datasets for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM datasets_${blockchainName} WHERE isPublic = ?`, [true]);
@@ -87,7 +87,7 @@ export async function getPublicDatasets(blockchainName) {
 	}
 }
 
-export async function updateDatasetInfo(blockchainName, name, fullName, description) {
+export async function dbUpdateDatasetInfo(blockchainName, name, fullName, description) {
 	try {
 		logger.debug(`update dataset for blockchain: ${blockchainName}`);
 		await dbRun(`UPDATE datasets_${blockchainName} SET fullName = ?, description = ? WHERE name = ?`, [fullName, description, name]);
@@ -101,7 +101,7 @@ export async function updateDatasetInfo(blockchainName, name, fullName, descript
 	}
 }
 
-export async function updateDatasetPublicLevel(blockchainName, name, isPublic, canMaskingShare = false, canCustomMaskingTrade = false, canDataService = false) {
+export async function dbUpdateDatasetPublicLevel(blockchainName, name, isPublic, canMaskingShare = false, canCustomMaskingTrade = false, canDataService = false) {
 	try {
 		logger.debug(`update blockchain: ${blockchainName} dataset: ${name} public level to public: ${isPublic}, masking share: ${canMaskingShare}, custom masking trade: ${canCustomMaskingTrade}, data service: ${canDataService}`);
 		await dbRun(`UPDATE datasets_${blockchainName} SET isPublic = ?, canMaskingShare = ?, canCustomMaskingTrade = ?, canDataService = ? WHERE name = ?`, [isPublic, canMaskingShare, canCustomMaskingTrade, canDataService, name]);
@@ -115,7 +115,7 @@ export async function updateDatasetPublicLevel(blockchainName, name, isPublic, c
 	}
 }
 
-export async function updateDatasetHash(blockchainName, name, hash) {
+export async function dbUpdateDatasetHash(blockchainName, name, hash) {
 	try {
 		logger.debug(`update dataset hash for blockchain: ${blockchainName}`);	
 		await dbRun(`UPDATE datasets_${blockchainName} SET hash = ? WHERE name = ?`, [hash, name]);
@@ -129,7 +129,7 @@ export async function updateDatasetHash(blockchainName, name, hash) {
 	}
 }
 
-export async function updateMaskingDatasetIPFSAddress(blockchainName, name, maskingDatasetIPFSAddress) {
+export async function dbUpdateMaskingDatasetIPFSAddress(blockchainName, name, maskingDatasetIPFSAddress) {
 	try {
 		logger.debug(`update masking dataset ipfs address for blockchain: ${blockchainName}`);	
 		await dbRun(`UPDATE datasets_${blockchainName} SET maskingDatasetIPFSAddress = ? WHERE name = ?`, [maskingDatasetIPFSAddress, name]);
@@ -143,7 +143,7 @@ export async function updateMaskingDatasetIPFSAddress(blockchainName, name, mask
 	}
 }
 
-export async function getDatasetByDatasetName(blockchainName, name) {
+export async function dbGetDatasetByName(blockchainName, name) {
 	try {
 		logger.debug(`get dataset by dataset name for blockchain: ${blockchainName}`);
 		const row = await dbGet(`SELECT * FROM datasets_${blockchainName} WHERE name = ?`, [name]);
@@ -155,7 +155,7 @@ export async function getDatasetByDatasetName(blockchainName, name) {
 	}
 }
 
-export async function getDatasetsByOwner(blockchainName, owner) {
+export async function dbGetDatasetsByOwner(blockchainName, owner) {
 	try {
 		logger.debug(`get datasets by owner ${owner} for blockchain: ${blockchainName}`);
 		const rows = await dbAll(`SELECT * FROM datasets_${blockchainName} WHERE owner = ?`, [owner]);
