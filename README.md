@@ -1,1 +1,1 @@
-DeTrade 大数据交易平台 
+DeTrade 大数据交易平台
